@@ -128,15 +128,62 @@ export async function enhanceJobWithAISummary(
         period: 'monthly' as const,
       } : undefined),
       // Update location if AI extracted it
-      location: job.location || result.structured.location ? {
-        ...job.location,
-        ...result.structured.location,
-      } : undefined,
+      location: (() => {
+        if (job.location) {
+          // If job already has location, merge with AI data if available
+          if (result.structured.location) {
+            return {
+              ...job.location,
+              address: result.structured.location.address || job.location.address,
+              city: result.structured.location.district || job.location.city,
+              district: result.structured.location.district || job.location.district,
+              transjakartaDistance: result.structured.location.transjakartaDistance ?? job.location.transjakartaDistance,
+              accessibility: result.structured.location.accessibility || job.location.accessibility,
+            };
+          }
+          return job.location;
+        }
+        // If no location, create from AI data or use defaults
+        if (result.structured.location) {
+          return {
+            address: result.structured.location.address || '',
+            city: result.structured.location.district || '',
+            district: result.structured.location.district,
+            transjakartaDistance: result.structured.location.transjakartaDistance,
+            accessibility: result.structured.location.accessibility,
+          };
+        }
+        // Fallback to minimal required fields
+        return {
+          address: '',
+          city: '',
+        };
+      })(),
       // Update accessibility if AI extracted it
-      accessibility: job.accessibility || result.structured.supportLevel ? {
-        level: result.structured.supportLevel || job.accessibility?.level || 'medium',
-        details: result.structured.accommodations || job.accessibility?.details || [],
-      } : undefined,
+      accessibility: (() => {
+        if (job.accessibility) {
+          // If job already has accessibility, merge with AI data if available
+          if (result.structured.supportLevel) {
+            return {
+              level: result.structured.supportLevel || job.accessibility.level,
+              details: result.structured.accommodations || job.accessibility.details,
+            };
+          }
+          return job.accessibility;
+        }
+        // If no accessibility, create from AI data or use defaults
+        if (result.structured.supportLevel) {
+          return {
+            level: result.structured.supportLevel,
+            details: result.structured.accommodations || [],
+          };
+        }
+        // Fallback to default
+        return {
+          level: 'medium' as const,
+          details: [],
+        };
+      })(),
     };
 
     return enhanced;
