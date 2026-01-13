@@ -218,10 +218,9 @@ export function ProfileForm({
             required
             example="Contoh: Budi Santoso"
             type="text"
-            {...register('personalInfo.fullName', {
-              onFocus: () => handleFieldFocus('personalInfo.fullName'),
-              onBlur: () => handleFieldBlur('personalInfo.fullName'),
-            })}
+            {...register('personalInfo.fullName')}
+            onFocus={() => handleFieldFocus('personalInfo.fullName')}
+            onBlur={() => handleFieldBlur('personalInfo.fullName')}
             error={errors.personalInfo?.fullName?.message}
             id="fullName"
           />
@@ -234,10 +233,9 @@ export function ProfileForm({
               format="email format"
               example="contoh@email.com"
               type="email"
-              {...register('personalInfo.email', {
-                onFocus: () => handleFieldFocus('personalInfo.email'),
-                onBlur: () => handleFieldBlur('personalInfo.email'),
-              })}
+              {...register('personalInfo.email')}
+              onFocus={() => handleFieldFocus('personalInfo.email')}
+              onBlur={() => handleFieldBlur('personalInfo.email')}
               error={errors.personalInfo?.email?.message}
               id="email"
             />
@@ -249,10 +247,9 @@ export function ProfileForm({
               format="Minimal 10 digit"
               example="081234567890"
               type="tel"
-              {...register('personalInfo.phone', {
-                onFocus: () => handleFieldFocus('personalInfo.phone'),
-                onBlur: () => handleFieldBlur('personalInfo.phone'),
-              })}
+            {...register('personalInfo.phone')}
+            onFocus={() => handleFieldFocus('personalInfo.phone')}
+            onBlur={() => handleFieldBlur('personalInfo.phone')}
               error={errors.personalInfo?.phone?.message}
               id="phone"
             />

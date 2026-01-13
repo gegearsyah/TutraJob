@@ -15,7 +15,6 @@ import type { JobListing } from '@/types/job';
 import { triggerHaptic } from '@/lib/haptic';
 import { announce } from '@/lib/audio';
 import { enhanceJobWithAISummary, isAISummarizationAvailable } from '@/lib/ai/job-summarizer';
-import { enhanceJobWithAISummary, isAISummarizationAvailable } from '@/lib/ai/job-summarizer';
 
 // Mock data - will be replaced with API calls
 // Using fixed dates to prevent hydration mismatches

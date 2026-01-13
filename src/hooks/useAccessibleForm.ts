@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { FieldErrors, UseFormReturn } from 'react-hook-form';
+import { FieldErrors, UseFormReturn, FieldValues } from 'react-hook-form';
 import { announce } from '@/lib/audio';
 import { triggerHaptic } from '@/lib/haptic';
 import { useIsMounted } from '@/lib/hooks/useIsMounted';
@@ -18,7 +18,7 @@ interface FieldDescription {
   example?: string;
 }
 
-interface UseAccessibleFormOptions<T> {
+interface UseAccessibleFormOptions<T extends FieldValues> {
   form: UseFormReturn<T>;
   fieldDescriptions: Record<string, FieldDescription>;
   autoNavigateOnError?: boolean;
@@ -26,7 +26,7 @@ interface UseAccessibleFormOptions<T> {
   announceOnBlur?: boolean;
 }
 
-export function useAccessibleForm<T extends Record<string, any>>({
+export function useAccessibleForm<T extends FieldValues>({
   form,
   fieldDescriptions,
   autoNavigateOnError = true,

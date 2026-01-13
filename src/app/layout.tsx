@@ -44,7 +44,6 @@ export default function RootLayout({
           defaultTheme="dark"
           enableSystem={false}
           disableTransitionOnChange
-          suppressColorSchemeWarning
         >
           {children}
           <EnvCheck />
