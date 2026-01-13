@@ -33,7 +33,7 @@ export function useAccessibleForm<T extends FieldValues>({
   announceOnFocus = true,
   announceOnBlur = true,
 }: UseAccessibleFormOptions<T>) {
-  const { errors, trigger, watch } = form;
+  const { formState: { errors }, trigger, watch } = form;
   const isMounted = useIsMounted();
   const previousErrorsRef = useRef<FieldErrors<T>>({});
   const focusedFieldRef = useRef<string | null>(null);

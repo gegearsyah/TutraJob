@@ -121,11 +121,12 @@ export async function enhanceJobWithAISummary(
       ...job,
       summary: result.summary,
       // Update salary if AI extracted it and job doesn't have it
-      salary: job.salary || result.structured.salary ? {
-        ...job.salary,
-        ...result.structured.salary,
-        currency: result.structured.salary?.currency || 'IDR',
-      } : undefined,
+      salary: job.salary || (result.structured.salary ? {
+        min: result.structured.salary.min,
+        max: result.structured.salary.max,
+        currency: result.structured.salary.currency || 'IDR',
+        period: 'monthly' as const,
+      } : undefined),
       // Update location if AI extracted it
       location: job.location || result.structured.location ? {
         ...job.location,
