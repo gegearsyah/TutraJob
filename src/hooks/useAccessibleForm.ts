@@ -9,7 +9,7 @@ import { announce } from '@/lib/audio';
 import { triggerHaptic } from '@/lib/haptic';
 import { useIsMounted } from '@/lib/hooks/useIsMounted';
 
-interface FieldDescription {
+export interface FieldDescription {
   label: string;
   description: string;
   placeholder?: string;
