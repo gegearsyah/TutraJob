@@ -10,6 +10,9 @@ import { useIsMounted } from '@/lib/hooks/useIsMounted';
 import { usePageAnnouncement } from '@/hooks/usePageAnnouncement';
 import { JobCard } from '@/components/job-seeker/JobCard';
 import { AccessibleButton } from '@/components/ui/AccessibleButton';
+import { SavedJobCard } from '@/components/accessibility/SavedJobCard';
+import { FocusAnnouncement } from '@/components/accessibility/FocusAnnouncement';
+import { AnnounceableText } from '@/components/accessibility/AnnounceableText';
 import { announce } from '@/lib/audio';
 import { triggerHaptic } from '@/lib/haptic';
 import { playAudioCue } from '@/lib/audio';
@@ -98,12 +101,22 @@ export default function SavedJobsPage() {
       <div className="max-w-4xl mx-auto">
         <header className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <Bookmark className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold">Pekerjaan Tersimpan</h1>
+            <Bookmark className="w-8 h-8 text-primary" aria-hidden="true" />
+            <FocusAnnouncement
+              description="Halaman Pekerjaan Tersimpan. Di halaman ini, Anda dapat melihat semua pekerjaan yang telah disimpan, melamar pekerjaan, atau menghapus dari daftar tersimpan."
+              label="Halaman Pekerjaan Tersimpan"
+            >
+              <h1 className="text-3xl font-bold">Pekerjaan Tersimpan</h1>
+            </FocusAnnouncement>
           </div>
-          <p className="text-muted-foreground">
+          <AnnounceableText
+            description="Halaman ini menampilkan pekerjaan yang telah Anda simpan untuk dilamar nanti. Anda dapat melamar langsung dari halaman ini atau menghapus pekerjaan yang tidak lagi diminati."
+            label="Deskripsi Halaman"
+            as="p"
+            className="text-muted-foreground"
+          >
             Kelola pekerjaan yang telah Anda simpan untuk dilamar nanti
-          </p>
+          </AnnounceableText>
         </header>
 
         {savedJobs.length === 0 ? (
@@ -125,21 +138,14 @@ export default function SavedJobsPage() {
         ) : (
           <div className="space-y-6">
             {savedJobs.map((job) => (
-              <div key={job.id} className="relative">
-                <JobCard
-                  job={job}
-                  onApply={handleApply}
-                  onDismiss={handleDismiss}
-                  onViewDetails={handleViewDetails}
-                />
-                <button
-                  onClick={() => handleRemove(job.id)}
-                  className="absolute top-4 right-4 p-2 bg-destructive/10 text-destructive rounded-lg hover:bg-destructive/20 transition-colors min-h-[48px] min-w-[48px] flex items-center justify-center"
-                  aria-label={`Hapus ${job.title} dari daftar tersimpan`}
-                >
-                  <Trash2 className="w-5 h-5" />
-                </button>
-              </div>
+              <SavedJobCard
+                key={job.id}
+                job={job}
+                onApply={handleApply}
+                onDismiss={handleDismiss}
+                onViewDetails={handleViewDetails}
+                onRemove={handleRemove}
+              />
             ))}
           </div>
         )}

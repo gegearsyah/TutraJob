@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay';
 import { TutorialButton } from '@/components/tutorial/TutorialButton';
+import { FocusAnnouncement } from '@/components/accessibility/FocusAnnouncement';
+import { AnnounceableText } from '@/components/accessibility/AnnounceableText';
 import { useTutorial } from '@/hooks/useTutorial';
 import { learnerTutorialSteps } from '@/lib/tutorials/learner-tutorial';
 import { usePageAnnouncement } from '@/hooks/usePageAnnouncement';
@@ -34,12 +36,22 @@ export default function LearnerPage() {
     <div className="container py-8">
       <div className="space-y-6">
         <div className="flex items-start justify-between">
-          <div>
-            <h2 className="text-3xl font-bold mb-2">Selamat Datang di Portal Pencari Kerja</h2>
-            <p className="text-muted-foreground">
-              Platform pencarian kerja yang mudah diakses untuk semua
-            </p>
-          </div>
+          <FocusAnnouncement
+            description="Selamat datang di Portal Pencari Kerja. Platform pencarian kerja yang mudah diakses untuk semua, khususnya penyandang disabilitas. Platform ini dilengkapi dengan fitur aksesibilitas lengkap termasuk audio feedback, haptic feedback, dan navigasi keyboard."
+            label="Judul Halaman"
+          >
+            <div tabIndex={0}>
+              <h2 className="text-3xl font-bold mb-2">Selamat Datang di Portal Pencari Kerja</h2>
+              <AnnounceableText
+                description="Platform pencarian kerja yang dirancang khusus untuk mudah diakses oleh semua orang, termasuk penyandang disabilitas. Dilengkapi dengan fitur aksesibilitas lengkap."
+                label="Deskripsi Platform"
+                as="p"
+                className="text-muted-foreground"
+              >
+                Platform pencarian kerja yang mudah diakses untuk semua
+              </AnnounceableText>
+            </div>
+          </FocusAnnouncement>
           <TutorialButton
             onStart={startTutorial}
             tutorialId="learner-main"
@@ -47,42 +59,70 @@ export default function LearnerPage() {
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link
-            href="/apps/learner/jobs"
-            className="p-6 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors"
+          <FocusAnnouncement
+            description="Jelajahi dan cari lowongan kerja yang sesuai dengan profil Anda. Di halaman ini, Anda dapat melihat kartu pekerjaan, menggunakan filter, dan melamar pekerjaan dengan mudah menggunakan gesture geser atau tombol."
+            label="Cari Pekerjaan"
+            context="Tekan Enter untuk membuka halaman pencarian pekerjaan"
+            isNavigation={true}
           >
-            <h3 className="text-xl font-semibold mb-2">Find Jobs</h3>
-            <p className="text-sm text-muted-foreground">
-              Browse accessible job opportunities
-            </p>
-          </Link>
-          <Link
-            href="/apps/learner/applications"
-            className="p-6 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors"
+            <Link
+              href="/apps/learner/jobs"
+              className="p-6 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors min-h-[48px] flex flex-col"
+            >
+              <h3 className="text-xl font-semibold mb-2">Cari Pekerjaan</h3>
+              <p className="text-sm text-muted-foreground">
+                Jelajahi lowongan kerja yang mudah diakses
+              </p>
+            </Link>
+          </FocusAnnouncement>
+          <FocusAnnouncement
+            description="Lihat dan lacak status semua lamaran pekerjaan yang telah Anda kirim. Anda dapat melihat status seperti Dikirim, Sedang Ditinjau, Wawancara Dijadwalkan, Tawaran Diterima, atau Ditolak."
+            label="Riwayat Lamaran"
+            context="Tekan Enter untuk membuka halaman riwayat lamaran"
+            isNavigation={true}
           >
-            <h3 className="text-xl font-semibold mb-2">Riwayat Lamaran</h3>
-            <p className="text-sm text-muted-foreground">
-              Lacak status semua lamaran Anda
-            </p>
-          </Link>
-          <Link
-            href="/apps/learner/saved"
-            className="p-6 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors"
+            <Link
+              href="/apps/learner/applications"
+              className="p-6 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors min-h-[48px] flex flex-col"
+            >
+              <h3 className="text-xl font-semibold mb-2">Riwayat Lamaran</h3>
+              <p className="text-sm text-muted-foreground">
+                Lacak status semua lamaran Anda
+              </p>
+            </Link>
+          </FocusAnnouncement>
+          <FocusAnnouncement
+            description="Akses pekerjaan yang telah Anda simpan untuk dilamar nanti. Di halaman ini, Anda dapat melihat semua pekerjaan yang disimpan, melamar, atau menghapus dari daftar tersimpan."
+            label="Pekerjaan Tersimpan"
+            context="Tekan Enter untuk membuka halaman pekerjaan tersimpan"
+            isNavigation={true}
           >
-            <h3 className="text-xl font-semibold mb-2">Pekerjaan Tersimpan</h3>
-            <p className="text-sm text-muted-foreground">
-              Lihat pekerjaan yang telah disimpan
-            </p>
-          </Link>
-          <Link
-            href="/apps/learner/profile"
-            className="p-6 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors"
+            <Link
+              href="/apps/learner/saved"
+              className="p-6 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors min-h-[48px] flex flex-col"
+            >
+              <h3 className="text-xl font-semibold mb-2">Pekerjaan Tersimpan</h3>
+              <p className="text-sm text-muted-foreground">
+                Lihat pekerjaan yang telah disimpan
+              </p>
+            </Link>
+          </FocusAnnouncement>
+          <FocusAnnouncement
+            description="Lengkapi profil pribadi Anda dengan mengisi data pribadi, upload CV atau resume, menambahkan pengalaman kerja, pendidikan, dan mengatur preferensi pekerjaan. Profil yang lengkap meningkatkan peluang mendapatkan pekerjaan."
+            label="Lengkapi Profil"
+            context="Tekan Enter untuk membuka halaman profil"
+            isNavigation={true}
           >
-            <h3 className="text-xl font-semibold mb-2">Lengkapi Profil</h3>
-            <p className="text-sm text-muted-foreground">
-              Upload CV dan lengkapi data diri
-            </p>
-          </Link>
+            <Link
+              href="/apps/learner/profile"
+              className="p-6 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors min-h-[48px] flex flex-col"
+            >
+              <h3 className="text-xl font-semibold mb-2">Lengkapi Profil</h3>
+              <p className="text-sm text-muted-foreground">
+                Upload CV dan lengkapi data diri
+              </p>
+            </Link>
+          </FocusAnnouncement>
         </div>
       </div>
 

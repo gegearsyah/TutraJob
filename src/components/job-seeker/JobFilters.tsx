@@ -7,6 +7,8 @@
 
 import { useState } from 'react';
 import { Search, MapPin, DollarSign, Accessibility } from 'lucide-react';
+import { FocusAnnouncement } from '@/components/accessibility/FocusAnnouncement';
+import { useFocusAnnouncement } from '@/hooks/useFocusAnnouncement';
 import { cn } from '@/lib/utils';
 
 interface JobFiltersProps {
@@ -66,13 +68,26 @@ export function JobFilters({ onFilterChange, className }: JobFiltersProps) {
 
       {/* Quick Filters */}
       <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="px-4 py-2 text-sm border border-border rounded-lg hover:bg-muted transition-colors min-h-[48px]"
-          aria-expanded={isExpanded}
-        >
-          {isExpanded ? 'Sembunyikan Filter' : 'Tampilkan Filter'}
-        </button>
+        {(() => {
+          const toggleButtonProps = useFocusAnnouncement({
+            description: `${isExpanded ? 'Sembunyikan' : 'Tampilkan'} panel filter lanjutan. Panel ini berisi filter untuk lokasi, gaji, tingkat aksesibilitas, dan tipe kerja.`,
+            label: isExpanded ? 'Sembunyikan Filter' : 'Tampilkan Filter',
+            context: 'Tekan Enter untuk membuka atau menutup panel filter',
+            announceOnFocus: true,
+            announceOnLongPress: true,
+          });
+
+          return (
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="px-4 py-2 text-sm border border-border rounded-lg hover:bg-muted transition-colors min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-expanded={isExpanded}
+              {...toggleButtonProps}
+            >
+              {isExpanded ? 'Sembunyikan Filter' : 'Tampilkan Filter'}
+            </button>
+          );
+        })()}
       </div>
 
       {/* Expanded Filters */}
@@ -85,25 +100,38 @@ export function JobFilters({ onFilterChange, className }: JobFiltersProps) {
               Lokasi
             </label>
             <div className="flex flex-wrap gap-2">
-              {locations.map((location) => (
-                <button
-                  key={location}
-                  onClick={() => {
-                    const newLocations = filters.location.includes(location)
-                      ? filters.location.filter((l) => l !== location)
-                      : [...filters.location, location];
-                    updateFilter('location', newLocations);
-                  }}
-                  className={cn(
-                    'px-3 py-1.5 text-sm rounded-lg border transition-colors min-h-[48px]',
-                    filters.location.includes(location)
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'bg-background border-border hover:bg-muted'
-                  )}
-                >
-                  {location}
-                </button>
-              ))}
+              {locations.map((location) => {
+                const isSelected = filters.location.includes(location);
+                const locationButtonProps = useFocusAnnouncement({
+                  description: `Filter lokasi: ${location}. ${isSelected ? 'Filter ini aktif. Tekan untuk menonaktifkan.' : 'Filter ini tidak aktif. Tekan untuk mengaktifkan filter lokasi ini.'}`,
+                  label: `Filter ${location}`,
+                  context: isSelected ? 'Tekan Enter untuk menonaktifkan' : 'Tekan Enter untuk mengaktifkan',
+                  announceOnFocus: true,
+                  announceOnLongPress: true,
+                });
+
+                return (
+                  <button
+                    key={location}
+                    onClick={() => {
+                      const newLocations = filters.location.includes(location)
+                        ? filters.location.filter((l) => l !== location)
+                        : [...filters.location, location];
+                      updateFilter('location', newLocations);
+                    }}
+                    className={cn(
+                      'px-3 py-1.5 text-sm rounded-lg border transition-colors min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                      isSelected
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-background border-border hover:bg-muted'
+                    )}
+                    aria-pressed={isSelected}
+                    {...locationButtonProps}
+                  >
+                    {location}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -156,6 +184,15 @@ export function JobFilters({ onFilterChange, className }: JobFiltersProps) {
             <div className="flex flex-wrap gap-2">
               {(['high', 'medium', 'low'] as const).map((level) => {
                 const labels = { high: 'Tinggi', medium: 'Sedang', low: 'Rendah' };
+                const isSelected = filters.accessibilityLevel.includes(level);
+                const levelButtonProps = useFocusAnnouncement({
+                  description: `Filter tingkat aksesibilitas: ${labels[level]}. ${isSelected ? 'Filter ini aktif. Tekan untuk menonaktifkan.' : 'Filter ini tidak aktif. Tekan untuk mengaktifkan filter aksesibilitas ' + labels[level] + '.'}`,
+                  label: `Filter Aksesibilitas ${labels[level]}`,
+                  context: isSelected ? 'Tekan Enter untuk menonaktifkan' : 'Tekan Enter untuk mengaktifkan',
+                  announceOnFocus: true,
+                  announceOnLongPress: true,
+                });
+
                 return (
                   <button
                     key={level}
@@ -166,11 +203,13 @@ export function JobFilters({ onFilterChange, className }: JobFiltersProps) {
                       updateFilter('accessibilityLevel', newLevels);
                     }}
                     className={cn(
-                      'px-3 py-1.5 text-sm rounded-lg border transition-colors min-h-[48px]',
-                      filters.accessibilityLevel.includes(level)
+                      'px-3 py-1.5 text-sm rounded-lg border transition-colors min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                      isSelected
                         ? 'bg-primary text-primary-foreground border-primary'
                         : 'bg-background border-border hover:bg-muted'
                     )}
+                    aria-pressed={isSelected}
+                    {...levelButtonProps}
                   >
                     {labels[level]}
                   </button>
@@ -189,6 +228,20 @@ export function JobFilters({ onFilterChange, className }: JobFiltersProps) {
                   hybrid: 'Hybrid',
                   'on-site': 'On-site',
                 };
+                const descriptions = {
+                  remote: 'Kerja dari jarak jauh, tidak perlu datang ke kantor',
+                  hybrid: 'Kombinasi kerja dari rumah dan di kantor',
+                  'on-site': 'Kerja di kantor, harus datang setiap hari',
+                };
+                const isSelected = filters.workArrangement.includes(arrangement);
+                const arrangementButtonProps = useFocusAnnouncement({
+                  description: `Filter tipe kerja: ${labels[arrangement]}. ${descriptions[arrangement]}. ${isSelected ? 'Filter ini aktif. Tekan untuk menonaktifkan.' : 'Filter ini tidak aktif. Tekan untuk mengaktifkan filter tipe kerja ' + labels[arrangement] + '.'}`,
+                  label: `Filter ${labels[arrangement]}`,
+                  context: isSelected ? 'Tekan Enter untuk menonaktifkan' : 'Tekan Enter untuk mengaktifkan',
+                  announceOnFocus: true,
+                  announceOnLongPress: true,
+                });
+
                 return (
                   <button
                     key={arrangement}
@@ -199,11 +252,13 @@ export function JobFilters({ onFilterChange, className }: JobFiltersProps) {
                       updateFilter('workArrangement', newArrangements);
                     }}
                     className={cn(
-                      'px-3 py-1.5 text-sm rounded-lg border transition-colors min-h-[48px]',
-                      filters.workArrangement.includes(arrangement)
+                      'px-3 py-1.5 text-sm rounded-lg border transition-colors min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                      isSelected
                         ? 'bg-primary text-primary-foreground border-primary'
                         : 'bg-background border-border hover:bg-muted'
                     )}
+                    aria-pressed={isSelected}
+                    {...arrangementButtonProps}
                   >
                     {labels[arrangement]}
                   </button>
@@ -213,23 +268,36 @@ export function JobFilters({ onFilterChange, className }: JobFiltersProps) {
           </div>
 
           {/* Clear Filters */}
-          <button
-            onClick={() => {
-              const clearedFilters: FilterState = {
-                search: '',
-                location: [],
-                salaryMin: null,
-                salaryMax: null,
-                accessibilityLevel: [],
-                workArrangement: [],
-              };
-              setFilters(clearedFilters);
-              onFilterChange(clearedFilters);
-            }}
-            className="w-full px-4 py-2 text-sm border border-border rounded-lg hover:bg-muted transition-colors min-h-[48px]"
-          >
-            Hapus Semua Filter
-          </button>
+          {(() => {
+            const clearButtonProps = useFocusAnnouncement({
+              description: 'Hapus semua filter yang telah diaktifkan. Setelah dihapus, semua pekerjaan akan ditampilkan kembali tanpa filter.',
+              label: 'Hapus Semua Filter',
+              context: 'Tekan Enter untuk menghapus semua filter',
+              announceOnFocus: true,
+              announceOnLongPress: true,
+            });
+
+            return (
+              <button
+                onClick={() => {
+                  const clearedFilters: FilterState = {
+                    search: '',
+                    location: [],
+                    salaryMin: null,
+                    salaryMax: null,
+                    accessibilityLevel: [],
+                    workArrangement: [],
+                  };
+                  setFilters(clearedFilters);
+                  onFilterChange(clearedFilters);
+                }}
+                className="w-full px-4 py-2 text-sm border border-border rounded-lg hover:bg-muted transition-colors min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                {...clearButtonProps}
+              >
+                Hapus Semua Filter
+              </button>
+            );
+          })()}
         </div>
       )}
     </div>

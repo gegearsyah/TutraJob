@@ -9,6 +9,9 @@ import { useEffect } from 'react';
 import { X, MapPin, DollarSign, Clock, Briefcase, CheckCircle, ExternalLink } from 'lucide-react';
 import type { JobListing } from '@/types/job';
 import { useIsMounted } from '@/lib/hooks/useIsMounted';
+import { FocusAnnouncement } from '@/components/accessibility/FocusAnnouncement';
+import { AnnounceableText } from '@/components/accessibility/AnnounceableText';
+import { useFocusAnnouncement } from '@/hooks/useFocusAnnouncement';
 import { announce } from '@/lib/audio';
 import { cn } from '@/lib/utils';
 
@@ -75,77 +78,115 @@ export function JobDetailModal({ job, isOpen, onClose, onApply }: JobDetailModal
             </h2>
             <p className="text-lg text-muted-foreground">{job.company}</p>
           </div>
-          <button
-            onClick={onClose}
-            className="min-w-[48px] min-h-[48px] p-2 hover:bg-muted rounded-lg transition-colors"
-            aria-label="Tutup detail pekerjaan"
-          >
-            <X className="w-6 h-6" />
-          </button>
+          {(() => {
+            const closeButtonProps = useFocusAnnouncement({
+              description: 'Tutup modal detail pekerjaan dan kembali ke halaman sebelumnya',
+              label: 'Tombol Tutup',
+              context: 'Tekan Enter untuk menutup modal',
+              announceOnFocus: true,
+              announceOnLongPress: true,
+            });
+
+            return (
+              <button
+                onClick={onClose}
+                className="min-w-[48px] min-h-[48px] p-2 hover:bg-muted rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label="Tutup detail pekerjaan"
+                {...closeButtonProps}
+              >
+                <X className="w-6 h-6" aria-hidden="true" />
+              </button>
+            );
+          })()}
         </div>
 
         {/* Content - Scrollable */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Quick Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-start gap-3">
-              <MapPin className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-              <div>
-                <p className="text-sm text-muted-foreground">Lokasi</p>
-                <p className="font-medium">
-                  {job.location.address}, {job.location.city}
-                  {job.location.district && `, ${job.location.district}`}
-                </p>
-                {job.location.transjakartaDistance && (
-                  <p className="text-sm text-muted-foreground">
-                    {job.location.transjakartaDistance} meter dari stasiun TransJakarta
+            <FocusAnnouncement
+              description={`Lokasi pekerjaan: ${job.location.address}, ${job.location.city}${job.location.district ? `, ${job.location.district}` : ''}. ${job.location.transjakartaDistance ? `Jarak ${job.location.transjakartaDistance} meter dari stasiun TransJakarta.` : ''} ${job.location.accessibility ? `Aksesibilitas lokasi: ${job.location.accessibility}.` : ''}`}
+              label="Informasi Lokasi"
+            >
+              <div className="flex items-start gap-3" tabIndex={0}>
+                <MapPin className="w-5 h-5 text-primary mt-1 flex-shrink-0" aria-hidden="true" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Lokasi</p>
+                  <p className="font-medium">
+                    {job.location.address}, {job.location.city}
+                    {job.location.district && `, ${job.location.district}`}
                   </p>
-                )}
+                  {job.location.transjakartaDistance && (
+                    <p className="text-sm text-muted-foreground">
+                      {job.location.transjakartaDistance} meter dari stasiun TransJakarta
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
+            </FocusAnnouncement>
 
-            <div className="flex items-start gap-3">
-              <DollarSign className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-              <div>
-                <p className="text-sm text-muted-foreground">Gaji</p>
-                <p className="font-medium">{formatSalary()}</p>
+            <FocusAnnouncement
+              description={`Informasi gaji: ${formatSalary()}. ${job.salary?.period === 'monthly' ? 'Gaji dibayar setiap bulan.' : job.salary?.period === 'yearly' ? 'Gaji dibayar setiap tahun.' : ''}`}
+              label="Informasi Gaji"
+            >
+              <div className="flex items-start gap-3" tabIndex={0}>
+                <DollarSign className="w-5 h-5 text-primary mt-1 flex-shrink-0" aria-hidden="true" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Gaji</p>
+                  <p className="font-medium">{formatSalary()}</p>
+                </div>
               </div>
-            </div>
+            </FocusAnnouncement>
 
-            <div className="flex items-start gap-3">
-              <Clock className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-              <div>
-                <p className="text-sm text-muted-foreground">Jenis Kerja</p>
-                <p className="font-medium capitalize">
-                  {job.workArrangement === 'on-site'
-                    ? 'Di kantor'
-                    : job.workArrangement === 'remote'
-                    ? 'Remote'
-                    : 'Hybrid'}
-                </p>
+            <FocusAnnouncement
+              description={`Jenis kerja: ${job.workArrangement === 'on-site' ? 'Di kantor - harus datang ke kantor setiap hari' : job.workArrangement === 'remote' ? 'Remote - kerja dari jarak jauh, tidak perlu datang ke kantor' : 'Hybrid - kombinasi kerja dari rumah dan di kantor'}.`}
+              label="Jenis Kerja"
+            >
+              <div className="flex items-start gap-3" tabIndex={0}>
+                <Clock className="w-5 h-5 text-primary mt-1 flex-shrink-0" aria-hidden="true" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Jenis Kerja</p>
+                  <p className="font-medium capitalize">
+                    {job.workArrangement === 'on-site'
+                      ? 'Di kantor'
+                      : job.workArrangement === 'remote'
+                      ? 'Remote'
+                      : 'Hybrid'}
+                  </p>
+                </div>
               </div>
-            </div>
+            </FocusAnnouncement>
 
-            <div className="flex items-start gap-3">
-              <Briefcase className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-              <div>
-                <p className="text-sm text-muted-foreground">Aksesibilitas</p>
-                <p className="font-medium capitalize">
-                  {job.accessibility.level === 'high'
-                    ? 'Tinggi'
-                    : job.accessibility.level === 'medium'
-                    ? 'Sedang'
-                    : 'Rendah'}
-                </p>
+            <FocusAnnouncement
+              description={`Tingkat aksesibilitas: ${job.accessibility.level === 'high' ? 'Tinggi - dukungan aksesibilitas lengkap' : job.accessibility.level === 'medium' ? 'Sedang - beberapa dukungan aksesibilitas' : 'Rendah - dukungan aksesibilitas terbatas'}. ${job.accessibility.details.length > 0 ? `Detail: ${job.accessibility.details.join(', ')}.` : ''}`}
+              label="Tingkat Aksesibilitas"
+            >
+              <div className="flex items-start gap-3" tabIndex={0}>
+                <Briefcase className="w-5 h-5 text-primary mt-1 flex-shrink-0" aria-hidden="true" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Aksesibilitas</p>
+                  <p className="font-medium capitalize">
+                    {job.accessibility.level === 'high'
+                      ? 'Tinggi'
+                      : job.accessibility.level === 'medium'
+                      ? 'Sedang'
+                      : 'Rendah'}
+                  </p>
+                </div>
               </div>
-            </div>
+            </FocusAnnouncement>
           </div>
 
           {/* Description */}
-          <div>
-            <h3 className="text-lg font-semibold mb-3">Deskripsi Pekerjaan</h3>
-            <p className="text-muted-foreground whitespace-pre-wrap">{job.description}</p>
-          </div>
+          <FocusAnnouncement
+            description={`Deskripsi lengkap pekerjaan: ${job.description.substring(0, 200)}${job.description.length > 200 ? '...' : ''}`}
+            label="Deskripsi Pekerjaan"
+          >
+            <div tabIndex={0}>
+              <h3 className="text-lg font-semibold mb-3">Deskripsi Pekerjaan</h3>
+              <p className="text-muted-foreground whitespace-pre-wrap">{job.description}</p>
+            </div>
+          </FocusAnnouncement>
 
           {/* Requirements */}
           {job.requirements.length > 0 && (
@@ -212,25 +253,54 @@ export function JobDetailModal({ job, isOpen, onClose, onApply }: JobDetailModal
 
         {/* Footer Actions */}
         <div className="flex items-center justify-between p-6 border-t border-border gap-4">
-          <a
-            href={job.applicationUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 text-primary hover:bg-primary/10 rounded-lg transition-colors min-h-[48px]"
-          >
-            <ExternalLink className="w-5 h-5" />
-            <span>Buka di situs asli</span>
-          </a>
-          <button
-            onClick={() => {
-              onApply(job.id);
-              onClose();
-            }}
-            className="flex-1 min-h-[48px] px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
-          >
-            <CheckCircle className="w-5 h-5" />
-            <span>Lamar Sekarang</span>
-          </button>
+          {(() => {
+            const externalLinkProps = useFocusAnnouncement({
+              description: `Buka halaman lamaran di situs asli perusahaan. Link ini akan membuka di tab baru.`,
+              label: 'Buka di Situs Asli',
+              context: 'Tekan Enter untuk membuka link eksternal',
+              announceOnFocus: true,
+              announceOnLongPress: true,
+            });
+
+            const applyButtonProps = useFocusAnnouncement({
+              description: `Melamar untuk posisi ${job.title} di ${job.company}. Setelah melamar, Anda akan menerima konfirmasi dan pekerjaan akan muncul di halaman Lamaran.`,
+              label: 'Lamar Sekarang',
+              context: 'Tekan Enter untuk melamar pekerjaan ini',
+              announceOnFocus: true,
+              announceOnLongPress: true,
+            });
+
+            return (
+              <>
+                <FocusAnnouncement
+                  description="Buka halaman lamaran di situs asli perusahaan. Link ini akan membuka di tab baru browser Anda."
+                  label="Link Eksternal"
+                >
+                  <a
+                    href={job.applicationUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2 text-primary hover:bg-primary/10 rounded-lg transition-colors min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    {...externalLinkProps}
+                  >
+                    <ExternalLink className="w-5 h-5" aria-hidden="true" />
+                    <span>Buka di situs asli</span>
+                  </a>
+                </FocusAnnouncement>
+                <button
+                  onClick={() => {
+                    onApply(job.id);
+                    onClose();
+                  }}
+                  className="flex-1 min-h-[48px] px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  {...applyButtonProps}
+                >
+                  <CheckCircle className="w-5 h-5" aria-hidden="true" />
+                  <span>Lamar Sekarang</span>
+                </button>
+              </>
+            );
+          })()}
         </div>
       </div>
     </div>

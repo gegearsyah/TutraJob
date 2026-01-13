@@ -10,6 +10,8 @@ import { JobCardStack } from '@/components/job-seeker/JobCardStack';
 import { JobFilters, type FilterState } from '@/components/job-seeker/JobFilters';
 import { JobDetailModal } from '@/components/job-seeker/JobDetailModal';
 import { AccessibleButton } from '@/components/ui/AccessibleButton';
+import { FocusAnnouncement } from '@/components/accessibility/FocusAnnouncement';
+import { AnnounceableText } from '@/components/accessibility/AnnounceableText';
 import { usePageAnnouncement } from '@/hooks/usePageAnnouncement';
 import type { JobListing } from '@/types/job';
 import { triggerHaptic } from '@/lib/haptic';
@@ -192,10 +194,20 @@ export default function JobsPage() {
     <div className="container py-8">
       <div className="max-w-2xl mx-auto">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Cari Pekerjaan</h1>
-          <p className="text-muted-foreground">
+          <FocusAnnouncement
+            description="Halaman Cari Pekerjaan. Di halaman ini, Anda dapat menjelajahi lowongan kerja, menggunakan filter untuk mencari pekerjaan yang sesuai, dan melamar pekerjaan menggunakan gesture geser atau tombol."
+            label="Halaman Cari Pekerjaan"
+          >
+            <h1 className="text-3xl font-bold mb-2" tabIndex={0}>Cari Pekerjaan</h1>
+          </FocusAnnouncement>
+          <AnnounceableText
+            description="Gunakan gesture geser kanan untuk melamar pekerjaan, geser kiri untuk melewatkan, atau ketuk dua kali untuk melihat detail lengkap. Anda juga dapat menggunakan tombol keyboard: A untuk melamar, D untuk melewatkan."
+            label="Instruksi Navigasi"
+            as="p"
+            className="text-muted-foreground"
+          >
             Geser kanan untuk melamar, geser kiri untuk melewatkan
-          </p>
+          </AnnounceableText>
         </header>
 
         {/* Filters */}
@@ -205,9 +217,14 @@ export default function JobsPage() {
 
         {/* Results Count */}
         {filteredJobs.length !== allJobs.length && (
-          <div className="mb-4 text-sm text-muted-foreground">
-            Menampilkan {filteredJobs.length} dari {allJobs.length} pekerjaan
-          </div>
+          <FocusAnnouncement
+            description={`Menampilkan ${filteredJobs.length} dari ${allJobs.length} pekerjaan berdasarkan filter yang Anda pilih. ${allJobs.length - filteredJobs.length} pekerjaan tersembunyi karena tidak sesuai dengan filter.`}
+            label="Jumlah Hasil Filter"
+          >
+            <div className="mb-4 text-sm text-muted-foreground" tabIndex={0}>
+              Menampilkan {filteredJobs.length} dari {allJobs.length} pekerjaan
+            </div>
+          </FocusAnnouncement>
         )}
 
         {/* Job Cards */}
@@ -248,11 +265,16 @@ export default function JobsPage() {
 
         {/* Applied jobs count */}
         {appliedJobs.size > 0 && (
-          <div className="mt-8 text-center">
-            <p className="text-sm text-muted-foreground">
-              Anda telah melamar {appliedJobs.size} pekerjaan
-            </p>
-          </div>
+          <FocusAnnouncement
+            description={`Anda telah melamar ${appliedJobs.size} pekerjaan. Semua lamaran dapat dilihat di halaman Lamaran di menu navigasi.`}
+            label="Jumlah Lamaran"
+          >
+            <div className="mt-8 text-center" tabIndex={0}>
+              <p className="text-sm text-muted-foreground">
+                Anda telah melamar {appliedJobs.size} pekerjaan
+              </p>
+            </div>
+          </FocusAnnouncement>
         )}
       </div>
 

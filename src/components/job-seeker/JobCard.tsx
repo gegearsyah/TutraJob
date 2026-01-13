@@ -12,6 +12,7 @@ import { useGestureDetection } from '@/lib/gestures';
 import { triggerHaptic } from '@/lib/haptic';
 import { announce, playAudioCue } from '@/lib/audio';
 import { useIsMounted } from '@/lib/hooks/useIsMounted';
+import { useFocusAnnouncement } from '@/hooks/useFocusAnnouncement';
 import { cn } from '@/lib/utils';
 
 interface JobCardProps {
@@ -32,6 +33,64 @@ export function JobCard({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSwiping, setIsSwiping] = useState<'left' | 'right' | null>(null);
   const isMounted = useIsMounted();
+
+  // Build detailed job description for focus/long press announcement
+  const buildJobDescription = (): string => {
+    const parts: string[] = [];
+    parts.push(`Pekerjaan: ${job.title} di ${job.company}`);
+    
+    if (job.salary) {
+      if (job.salary.min && job.salary.max) {
+        parts.push(`Gaji: ${formatCurrency(job.salary.min)} hingga ${formatCurrency(job.salary.max)} per ${job.salary.period === 'monthly' ? 'bulan' : 'tahun'}`);
+      } else if (job.salary.min) {
+        parts.push(`Gaji mulai dari ${formatCurrency(job.salary.min)} per ${job.salary.period === 'monthly' ? 'bulan' : 'tahun'}`);
+      }
+    }
+    
+    parts.push(`Lokasi: ${job.location.address}, ${job.location.city}`);
+    if (job.location.transjakartaDistance) {
+      parts.push(`Jarak: ${job.location.transjakartaDistance} meter dari stasiun TransJakarta`);
+    }
+    
+    parts.push(`Aksesibilitas: ${getAccessibilityLabel(job.accessibility.level)}`);
+    if (job.accessibility.details.length > 0) {
+      parts.push(`Dukungan: ${job.accessibility.details.join(', ')}`);
+    }
+    
+    parts.push(`Jenis kerja: ${job.workArrangement === 'remote' ? 'Remote' : job.workArrangement === 'hybrid' ? 'Hybrid' : 'On-site'}`);
+    
+    parts.push(`Ringkasan: ${job.summary}`);
+    parts.push('Geser kanan untuk melamar, geser kiri untuk melewatkan, ketuk dua kali untuk detail lengkap');
+    
+    return parts.join('. ');
+  };
+
+  // Focus/long press announcement for the card
+  const cardAnnouncementProps = useFocusAnnouncement({
+    description: buildJobDescription(),
+    label: `Kartu pekerjaan: ${job.title}`,
+    context: 'Tekan Enter untuk melihat detail, atau gunakan gerakan geser',
+    announceOnFocus: true,
+    announceOnLongPress: true,
+    delay: 200,
+  });
+
+  // Focus/long press announcements for action buttons
+  const applyButtonProps = useFocusAnnouncement({
+    description: `Melamar untuk posisi ${job.title} di ${job.company}. Setelah melamar, Anda akan menerima konfirmasi dan pekerjaan akan muncul di halaman Lamaran`,
+    label: 'Tombol Lamar',
+    context: 'Tekan Enter untuk melamar pekerjaan ini',
+    announceOnFocus: true,
+    announceOnLongPress: true,
+  });
+  
+  const dismissButtonProps = useFocusAnnouncement({
+    description: `Melewatkan pekerjaan ${job.title} di ${job.company}. Pekerjaan ini akan dihapus dari daftar dan tidak akan muncul lagi`,
+    label: 'Tombol Lewati',
+    context: 'Tekan Enter untuk melewatkan pekerjaan ini',
+    announceOnFocus: true,
+    announceOnLongPress: true,
+  });
 
   // Gesture handlers
   const gestureHandlers = useGestureDetection({
@@ -80,7 +139,7 @@ export function JobCard({
   return (
     <article
       role="article"
-          aria-label={`Kartu pekerjaan: ${job.title} di ${job.company}`}
+      aria-label={`Kartu pekerjaan: ${job.title} di ${job.company}`}
       aria-describedby={`job-summary-${job.id}`}
       tabIndex={0}
       className={cn(
@@ -93,6 +152,7 @@ export function JobCard({
         className
       )}
       {...gestureHandlers}
+      {...cardAnnouncementProps}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -224,6 +284,7 @@ export function JobCard({
           }}
           className="flex-1 min-h-[48px] px-4 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label={`Lamar untuk ${job.title} di ${job.company}`}
+          {...applyButtonProps}
         >
           Lamar
         </button>
@@ -235,6 +296,7 @@ export function JobCard({
           }}
           className="flex-1 min-h-[48px] px-4 py-3 bg-muted text-muted-foreground rounded-lg font-medium hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label={`Lewati ${job.title}`}
+          {...dismissButtonProps}
         >
           Lewati
         </button>

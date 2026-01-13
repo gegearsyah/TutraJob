@@ -19,9 +19,9 @@ export const employerTutorialSteps: TutorialStep[] = [
     id: 'compliance',
     title: 'Pelacakan Kepatuhan Kuota',
     description:
-      'Sebagai pemberi kerja, Anda diwajibkan memenuhi kuota penyandang disabilitas sesuai peraturan.\n\nDi halaman "Kepatuhan", Anda dapat:\n• Melihat status kepatuhan real-time\n• Melihat jumlah karyawan disabilitas saat ini\n• Melihat kuota yang harus dipenuhi\n• Melihat gap yang perlu diisi\n• Menerima rekomendasi tindakan',
+      'Sebagai pemberi kerja, Anda diwajibkan memenuhi kuota penyandang disabilitas sesuai peraturan.\n\nDi halaman "Kepatuhan", Anda dapat:\n• Memeriksa status kepatuhan real-time\n• Memeriksa jumlah karyawan disabilitas saat ini\n• Memeriksa kuota yang harus dipenuhi\n• Memeriksa gap yang perlu diisi\n• Menerima rekomendasi tindakan',
     audioDescription:
-      'Sebagai pemberi kerja, Anda diwajibkan memenuhi kuota penyandang disabilitas sesuai peraturan. Di halaman Kepatuhan, Anda dapat melihat status kepatuhan real-time, melihat jumlah karyawan disabilitas saat ini, melihat kuota yang harus dipenuhi, melihat gap yang perlu diisi, dan menerima rekomendasi tindakan.',
+      'Sebagai pemberi kerja, Anda diwajibkan memenuhi kuota penyandang disabilitas sesuai peraturan. Di halaman Kepatuhan, Anda dapat memeriksa status kepatuhan real-time, memeriksa jumlah karyawan disabilitas saat ini, memeriksa kuota yang harus dipenuhi, memeriksa gap yang perlu diisi, dan menerima rekomendasi tindakan.',
     position: 'center',
   },
   {
@@ -35,11 +35,11 @@ export const employerTutorialSteps: TutorialStep[] = [
   },
   {
     id: 'candidates',
-    title: 'Melihat Kandidat',
+    title: 'Mengakses Kandidat',
     description:
-      'Di halaman "Kandidat", Anda dapat:\n\n• Melihat semua lamaran yang masuk\n• Filter berdasarkan posisi, status, atau tanggal\n• Melihat profil kandidat\n• Menggunakan Blind Audio Screening untuk penilaian yang tidak bias\n• Melihat skill mapping dengan kebutuhan pekerjaan',
+      'Di halaman "Kandidat", Anda dapat:\n\n• Mengakses semua lamaran yang masuk\n• Filter berdasarkan posisi, status, atau tanggal\n• Mengakses profil kandidat\n• Menggunakan Blind Audio Screening untuk penilaian yang tidak bias\n• Memeriksa skill mapping dengan kebutuhan pekerjaan',
     audioDescription:
-      'Di halaman Kandidat, Anda dapat melihat semua lamaran yang masuk, filter berdasarkan posisi, status, atau tanggal, melihat profil kandidat, menggunakan Blind Audio Screening untuk penilaian yang tidak bias, dan melihat skill mapping dengan kebutuhan pekerjaan.',
+      'Di halaman Kandidat, Anda dapat mengakses semua lamaran yang masuk, filter berdasarkan posisi, status, atau tanggal, mengakses profil kandidat, menggunakan Blind Audio Screening untuk penilaian yang tidak bias, dan memeriksa skill mapping dengan kebutuhan pekerjaan.',
     position: 'center',
   },
   {
@@ -55,27 +55,27 @@ export const employerTutorialSteps: TutorialStep[] = [
     id: 'accommodation',
     title: 'Profil Akomodasi yang Wajar',
     description:
-      'Fitur ini membantu Anda:\n\n• Menghitung biaya akomodasi yang diperlukan\n• Melihat profil akomodasi yang umum digunakan\n• Memahami kebutuhan aksesibilitas\n• Merencanakan budget untuk inklusivitas\n• Mencari solusi akomodasi yang cost-effective',
+      'Fitur ini membantu Anda:\n\n• Menghitung biaya akomodasi yang diperlukan\n• Mengakses profil akomodasi yang umum digunakan\n• Memahami kebutuhan aksesibilitas\n• Merencanakan budget untuk inklusivitas\n• Mencari solusi akomodasi yang cost-effective',
     audioDescription:
-      'Fitur ini membantu Anda menghitung biaya akomodasi yang diperlukan, melihat profil akomodasi yang umum digunakan, memahami kebutuhan aksesibilitas, merencanakan budget untuk inklusivitas, dan mencari solusi akomodasi yang cost-effective.',
+      'Fitur ini membantu Anda menghitung biaya akomodasi yang diperlukan, mengakses profil akomodasi yang umum digunakan, memahami kebutuhan aksesibilitas, merencanakan budget untuk inklusivitas, dan mencari solusi akomodasi yang cost-effective.',
     position: 'center',
   },
   {
     id: 'analytics',
     title: 'Analitik dan Laporan',
     description:
-      'Di dashboard analitik, Anda dapat melihat:\n\n• Jumlah views per lowongan\n• Tingkat konversi lamaran\n• Waktu rata-rata untuk mengisi posisi\n• Statistik kepatuhan kuota\n• Laporan bulanan untuk compliance\n\nGunakan data ini untuk meningkatkan proses rekrutmen.',
+      'Di dashboard analitik, Anda dapat mengakses:\n\n• Jumlah views per lowongan\n• Tingkat konversi lamaran\n• Waktu rata-rata untuk mengisi posisi\n• Statistik kepatuhan kuota\n• Laporan bulanan untuk compliance\n\nGunakan data ini untuk meningkatkan proses rekrutmen.',
     audioDescription:
-      'Di dashboard analitik, Anda dapat melihat jumlah views per lowongan, tingkat konversi lamaran, waktu rata-rata untuk mengisi posisi, statistik kepatuhan kuota, dan laporan bulanan untuk compliance. Gunakan data ini untuk meningkatkan proses rekrutmen.',
+      'Di dashboard analitik, Anda dapat mengakses jumlah views per lowongan, tingkat konversi lamaran, waktu rata-rata untuk mengisi posisi, statistik kepatuhan kuota, dan laporan bulanan untuk compliance. Gunakan data ini untuk meningkatkan proses rekrutmen.',
     position: 'center',
   },
   {
     id: 'complete',
     title: 'Tutorial Selesai!',
     description:
-      'Selamat! Anda telah menyelesaikan tutorial.\n\nSekarang Anda siap untuk:\n• Membuat lowongan kerja yang inklusif\n• Melacak kepatuhan kuota\n• Menilai kandidat dengan adil\n• Menggunakan fitur akomodasi\n\nJika Anda perlu melihat tutorial lagi, klik tombol "Tutorial" di dashboard.\n\nSelamat merekrut!',
+      'Selamat! Anda telah menyelesaikan tutorial.\n\nSekarang Anda siap untuk:\n• Membuat lowongan kerja yang inklusif\n• Melacak kepatuhan kuota\n• Menilai kandidat dengan adil\n• Menggunakan fitur akomodasi\n\nJika Anda perlu mengakses tutorial lagi, klik tombol "Tutorial" di dashboard.\n\nSelamat merekrut!',
     audioDescription:
-      'Selamat! Anda telah menyelesaikan tutorial. Sekarang Anda siap untuk membuat lowongan kerja yang inklusif, melacak kepatuhan kuota, menilai kandidat dengan adil, dan menggunakan fitur akomodasi. Jika Anda perlu melihat tutorial lagi, klik tombol Tutorial di dashboard. Selamat merekrut!',
+      'Selamat! Anda telah menyelesaikan tutorial. Sekarang Anda siap untuk membuat lowongan kerja yang inklusif, melacak kepatuhan kuota, menilai kandidat dengan adil, dan menggunakan fitur akomodasi. Jika Anda perlu mengakses tutorial lagi, klik tombol Tutorial di dashboard. Selamat merekrut!',
     position: 'center',
   },
 ];

@@ -19,9 +19,9 @@ export const learnerTutorialSteps: TutorialStep[] = [
     id: 'navigation',
     title: 'Navigasi Menu',
     description:
-      'Di bagian atas halaman, Anda akan melihat menu navigasi:\n\n• Beranda - Kembali ke halaman utama\n• Cari Pekerjaan - Jelajahi lowongan kerja\n• Lamaran - Lihat status lamaran Anda\n• Tersimpan - Pekerjaan yang disimpan\n• Profil - Kelola profil Anda\n\nGunakan menu ini untuk berpindah antar halaman.',
+      'Di bagian atas halaman, Anda akan menemukan menu navigasi:\n\n• Beranda - Kembali ke halaman utama\n• Cari Pekerjaan - Jelajahi lowongan kerja\n• Lamaran - Akses status lamaran Anda\n• Tersimpan - Pekerjaan yang disimpan\n• Profil - Kelola profil Anda\n\nGunakan menu ini untuk berpindah antar halaman.',
     audioDescription:
-      'Di bagian atas halaman, Anda akan melihat menu navigasi. Beranda untuk kembali ke halaman utama. Cari Pekerjaan untuk menjelajahi lowongan kerja. Lamaran untuk melihat status lamaran Anda. Tersimpan untuk pekerjaan yang disimpan. Dan Profil untuk mengelola profil Anda. Gunakan menu ini untuk berpindah antar halaman.',
+      'Di bagian atas halaman, Anda akan menemukan menu navigasi. Beranda untuk kembali ke halaman utama. Cari Pekerjaan untuk menjelajahi lowongan kerja. Lamaran untuk mengakses status lamaran Anda. Tersimpan untuk pekerjaan yang disimpan. Dan Profil untuk mengelola profil Anda. Gunakan menu ini untuk berpindah antar halaman.',
     targetSelector: 'nav',
     targetButtonLabel: 'Menu Navigasi',
     targetButtonInstructions: 'Menu navigasi berada di bagian atas halaman. Gunakan Tab untuk berpindah antar menu, lalu tekan Enter untuk memilih.',
@@ -45,9 +45,9 @@ export const learnerTutorialSteps: TutorialStep[] = [
     id: 'browse-jobs',
     title: 'Mencari Pekerjaan',
     description:
-      'Klik menu "Cari Pekerjaan" untuk melihat daftar lowongan kerja yang tersedia.\n\nDi halaman ini, Anda akan melihat kartu pekerjaan yang dapat Anda jelajahi menggunakan gerakan geser.',
+      'Klik menu "Cari Pekerjaan" untuk mengakses daftar lowongan kerja yang tersedia.\n\nDi halaman ini, Anda akan menemukan kartu pekerjaan yang dapat Anda jelajahi menggunakan gerakan geser.',
     audioDescription:
-      'Klik menu Cari Pekerjaan untuk melihat daftar lowongan kerja yang tersedia. Di halaman ini, Anda akan melihat kartu pekerjaan yang dapat Anda jelajahi menggunakan gerakan geser.',
+      'Klik menu Cari Pekerjaan untuk mengakses daftar lowongan kerja yang tersedia. Di halaman ini, Anda akan menemukan kartu pekerjaan yang dapat Anda jelajahi menggunakan gerakan geser.',
     targetSelector: 'a[href="/apps/learner/jobs"]',
     targetButtonLabel: 'Cari Pekerjaan',
     targetButtonInstructions: 'Tombol Cari Pekerjaan berada di menu navigasi, setelah tombol Beranda. Tekan Tab dari Beranda untuk menemukannya, lalu tekan Enter.',
@@ -58,9 +58,9 @@ export const learnerTutorialSteps: TutorialStep[] = [
     id: 'gestures',
     title: 'Gerakan Geser (Gestures)',
     description:
-      'Kartu pekerjaan mendukung gerakan geser untuk navigasi cepat:\n\n• Geser ke KANAN - Melamar pekerjaan\n• Geser ke KIRI - Melewatkan pekerjaan\n• Ketuk DUA KALI - Melihat detail lengkap\n• Tekan LAMA - Menyimpan pekerjaan\n\nAnda juga dapat menggunakan tombol keyboard:\n• Tekan A - Melamar\n• Tekan D - Melewatkan\n• Tekan S - Menyimpan',
+      'Kartu pekerjaan mendukung gerakan geser untuk navigasi cepat:\n\n• Geser ke KANAN - Melamar pekerjaan\n• Geser ke KIRI - Melewatkan pekerjaan\n• Ketuk DUA KALI - Membuka detail lengkap\n• Tekan LAMA - Menyimpan pekerjaan\n\nAnda juga dapat menggunakan tombol keyboard:\n• Tekan A - Melamar\n• Tekan D - Melewatkan\n• Tekan S - Menyimpan',
     audioDescription:
-      'Kartu pekerjaan mendukung gerakan geser untuk navigasi cepat. Geser ke kanan untuk melamar pekerjaan. Geser ke kiri untuk melewatkan pekerjaan. Ketuk dua kali untuk melihat detail lengkap. Tekan lama untuk menyimpan pekerjaan. Anda juga dapat menggunakan tombol keyboard. Tekan A untuk melamar, D untuk melewatkan, dan S untuk menyimpan.',
+      'Kartu pekerjaan mendukung gerakan geser untuk navigasi cepat. Geser ke kanan untuk melamar pekerjaan. Geser ke kiri untuk melewatkan pekerjaan. Ketuk dua kali untuk membuka detail lengkap. Tekan lama untuk menyimpan pekerjaan. Anda juga dapat menggunakan tombol keyboard. Tekan A untuk melamar, D untuk melewatkan, dan S untuk menyimpan.',
     position: 'center',
   },
   {
@@ -89,9 +89,9 @@ export const learnerTutorialSteps: TutorialStep[] = [
     id: 'job-details',
     title: 'Detail Pekerjaan',
     description:
-      'Untuk melihat detail lengkap pekerjaan:\n\n• Ketuk dua kali pada kartu pekerjaan, atau\n• Klik tombol "Lihat Detail"\n\nDi halaman detail, Anda akan melihat:\n• Deskripsi lengkap pekerjaan\n• Semua persyaratan\n• Tunjangan dan benefit\n• Detail aksesibilitas lokasi\n• Tombol untuk melamar langsung',
+      'Untuk mengakses detail lengkap pekerjaan:\n\n• Ketuk dua kali pada kartu pekerjaan, atau\n• Klik tombol "Lihat Detail"\n\nDi halaman detail, Anda akan menemukan:\n• Deskripsi lengkap pekerjaan\n• Semua persyaratan\n• Tunjangan dan benefit\n• Detail aksesibilitas lokasi\n• Tombol untuk melamar langsung',
     audioDescription:
-      'Untuk melihat detail lengkap pekerjaan, ketuk dua kali pada kartu pekerjaan, atau klik tombol Lihat Detail. Di halaman detail, Anda akan melihat deskripsi lengkap pekerjaan, semua persyaratan, tunjangan dan benefit, detail aksesibilitas lokasi, dan tombol untuk melamar langsung.',
+      'Untuk mengakses detail lengkap pekerjaan, ketuk dua kali pada kartu pekerjaan, atau klik tombol Lihat Detail. Di halaman detail, Anda akan menemukan deskripsi lengkap pekerjaan, semua persyaratan, tunjangan dan benefit, detail aksesibilitas lokasi, dan tombol untuk melamar langsung.',
     position: 'center',
   },
   {
@@ -107,18 +107,18 @@ export const learnerTutorialSteps: TutorialStep[] = [
     id: 'save-job',
     title: 'Menyimpan Pekerjaan',
     description:
-      'Jika Anda menemukan pekerjaan yang menarik tetapi belum siap melamar, Anda dapat menyimpannya:\n\n• Tekan lama pada kartu pekerjaan, atau\n• Klik tombol "Simpan" (jika tersedia)\n\nPekerjaan yang disimpan dapat dilihat di halaman "Tersimpan" di menu navigasi.',
+      'Jika Anda menemukan pekerjaan yang menarik tetapi belum siap melamar, Anda dapat menyimpannya:\n\n• Tekan lama pada kartu pekerjaan, atau\n• Klik tombol "Simpan" (jika tersedia)\n\nPekerjaan yang disimpan dapat diakses di halaman "Tersimpan" di menu navigasi.',
     audioDescription:
-      'Jika Anda menemukan pekerjaan yang menarik tetapi belum siap melamar, Anda dapat menyimpannya. Tekan lama pada kartu pekerjaan, atau klik tombol Simpan jika tersedia. Pekerjaan yang disimpan dapat dilihat di halaman Tersimpan di menu navigasi.',
+      'Jika Anda menemukan pekerjaan yang menarik tetapi belum siap melamar, Anda dapat menyimpannya. Tekan lama pada kartu pekerjaan, atau klik tombol Simpan jika tersedia. Pekerjaan yang disimpan dapat diakses di halaman Tersimpan di menu navigasi.',
     position: 'center',
   },
   {
     id: 'applications',
     title: 'Melacak Lamaran',
     description:
-      'Di halaman "Lamaran", Anda dapat:\n\n• Melihat semua pekerjaan yang telah Anda lamar\n• Melihat status setiap lamaran (Dikirim, Ditinjau, Diterima, Ditolak)\n• Melihat tanggal lamaran\n• Melihat apakah RPA digunakan untuk melamar\n\nStatus akan diperbarui secara otomatis saat ada perubahan.',
+      'Di halaman "Lamaran", Anda dapat:\n\n• Mengakses semua pekerjaan yang telah Anda lamar\n• Memeriksa status setiap lamaran (Dikirim, Ditinjau, Diterima, Ditolak)\n• Memeriksa tanggal lamaran\n• Memeriksa apakah RPA digunakan untuk melamar\n\nStatus akan diperbarui secara otomatis saat ada perubahan.',
     audioDescription:
-      'Di halaman Lamaran, Anda dapat melihat semua pekerjaan yang telah Anda lamar, melihat status setiap lamaran seperti Dikirim, Ditinjau, Diterima, atau Ditolak, melihat tanggal lamaran, dan melihat apakah RPA digunakan untuk melamar. Status akan diperbarui secara otomatis saat ada perubahan.',
+      'Di halaman Lamaran, Anda dapat mengakses semua pekerjaan yang telah Anda lamar, memeriksa status setiap lamaran seperti Dikirim, Ditinjau, Diterima, atau Ditolak, memeriksa tanggal lamaran, dan memeriksa apakah RPA digunakan untuk melamar. Status akan diperbarui secara otomatis saat ada perubahan.',
     targetSelector: 'a[href="/apps/learner/applications"]',
     targetButtonLabel: 'Lamaran',
     targetButtonInstructions: 'Tombol Lamaran berada di menu navigasi, setelah tombol Cari Pekerjaan. Tekan Tab beberapa kali dari Cari Pekerjaan untuk menemukannya, lalu tekan Enter.',
@@ -151,9 +151,9 @@ export const learnerTutorialSteps: TutorialStep[] = [
     id: 'complete',
     title: 'Tutorial Selesai!',
     description:
-      'Selamat! Anda telah menyelesaikan tutorial.\n\nSekarang Anda siap untuk:\n• Melengkapi profil Anda\n• Mencari pekerjaan yang sesuai\n• Melamar dengan mudah\n• Melacak status lamaran\n\nJika Anda perlu melihat tutorial lagi, klik tombol "Tutorial" di halaman profil.\n\nSelamat mencari kerja!',
+      'Selamat! Anda telah menyelesaikan tutorial.\n\nSekarang Anda siap untuk:\n• Melengkapi profil Anda\n• Mencari pekerjaan yang sesuai\n• Melamar dengan mudah\n• Melacak status lamaran\n\nJika Anda perlu mengakses tutorial lagi, klik tombol "Tutorial" di halaman profil.\n\nSelamat mencari kerja!',
     audioDescription:
-      'Selamat! Anda telah menyelesaikan tutorial. Sekarang Anda siap untuk melengkapi profil Anda, mencari pekerjaan yang sesuai, melamar dengan mudah, dan melacak status lamaran. Jika Anda perlu melihat tutorial lagi, klik tombol Tutorial di halaman profil. Selamat mencari kerja!',
+      'Selamat! Anda telah menyelesaikan tutorial. Sekarang Anda siap untuk melengkapi profil Anda, mencari pekerjaan yang sesuai, melamar dengan mudah, dan melacak status lamaran. Jika Anda perlu mengakses tutorial lagi, klik tombol Tutorial di halaman profil. Selamat mencari kerja!',
     position: 'center',
   },
 ];

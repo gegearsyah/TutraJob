@@ -10,6 +10,8 @@ import { X, CheckCircle2, AlertCircle, Info, Bell } from 'lucide-react';
 import { triggerHaptic } from '@/lib/haptic';
 import { announce } from '@/lib/audio';
 import { useIsMounted } from '@/lib/hooks/useIsMounted';
+import { NotificationItem } from '@/components/accessibility/NotificationItem';
+import { useFocusAnnouncement } from '@/hooks/useFocusAnnouncement';
 import { cn } from '@/lib/utils';
 
 export type NotificationType = 'success' | 'error' | 'info' | 'warning';
@@ -82,19 +84,32 @@ export function NotificationCenter({ className }: NotificationCenterProps) {
   return (
     <div className={cn('relative', className)}>
       {/* Notification Bell */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-lg hover:bg-muted transition-colors min-h-[48px] min-w-[48px] flex items-center justify-center"
-        aria-label={`Notifikasi${unreadCount > 0 ? `, ${unreadCount} belum dibaca` : ''}`}
-        aria-expanded={isOpen}
-      >
-        <Bell className="w-5 h-5" />
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
-        )}
-      </button>
+      {(() => {
+        const bellButtonProps = useFocusAnnouncement({
+          description: `Pusat Notifikasi. ${unreadCount > 0 ? `Anda memiliki ${unreadCount} notifikasi yang belum dibaca.` : 'Tidak ada notifikasi baru.'} Tekan Enter untuk membuka daftar notifikasi.`,
+          label: 'Notifikasi',
+          context: unreadCount > 0 ? `Tekan Enter untuk melihat ${unreadCount} notifikasi` : 'Tekan Enter untuk membuka notifikasi',
+          announceOnFocus: true,
+          announceOnLongPress: true,
+        });
+
+        return (
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="relative p-2 rounded-lg hover:bg-muted transition-colors min-h-[48px] min-w-[48px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            aria-label={`Notifikasi${unreadCount > 0 ? `, ${unreadCount} belum dibaca` : ''}`}
+            aria-expanded={isOpen}
+            {...bellButtonProps}
+          >
+            <Bell className="w-5 h-5" aria-hidden="true" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center" aria-label={`${unreadCount} notifikasi belum dibaca`}>
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
+        );
+      })()}
 
       {/* Notification Dropdown */}
       {isOpen && (
@@ -118,52 +133,39 @@ export function NotificationCenter({ className }: NotificationCenterProps) {
           ) : (
             <div className="divide-y divide-border">
               {notifications.map((notification) => (
-                <div
+                <NotificationItem
                   key={notification.id}
-                  className={cn(
-                    'p-4 hover:bg-muted/50 transition-colors',
-                    !notification.read && 'bg-primary/5'
-                  )}
-                >
-                  <div className="flex items-start gap-3">
-                    {getIcon(notification.type)}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <h4 className="font-medium text-sm">{notification.title}</h4>
-                        <button
-                          onClick={() => removeNotification(notification.id)}
-                          className="p-1 rounded hover:bg-muted min-h-[24px] min-w-[24px] flex items-center justify-center flex-shrink-0"
-                          aria-label="Hapus notifikasi"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {notification.message}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        {new Intl.DateTimeFormat('id-ID', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        }).format(notification.timestamp)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                  notification={notification}
+                  onRemove={removeNotification}
+                  getIcon={getIcon}
+                />
               ))}
             </div>
           )}
 
           {notifications.length > 0 && (
             <div className="p-2 border-t border-border">
-              <button
-                onClick={() => {
-                  setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-                }}
-                className="w-full px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Tandai semua sudah dibaca
-              </button>
+              {(() => {
+                const markAllReadProps = useFocusAnnouncement({
+                  description: `Tandai semua ${notifications.length} notifikasi sebagai sudah dibaca. Setelah ditandai, notifikasi tidak akan muncul sebagai belum dibaca lagi.`,
+                  label: 'Tandai Semua Sudah Dibaca',
+                  context: 'Tekan Enter untuk menandai semua notifikasi',
+                  announceOnFocus: true,
+                  announceOnLongPress: true,
+                });
+
+                return (
+                  <button
+                    onClick={() => {
+                      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+                    }}
+                    className="w-full px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    {...markAllReadProps}
+                  >
+                    Tandai semua sudah dibaca
+                  </button>
+                );
+              })()}
             </div>
           )}
         </div>

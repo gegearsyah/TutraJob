@@ -10,6 +10,10 @@ import { supabase } from '@/lib/supabase/client';
 import { useIsMounted } from '@/lib/hooks/useIsMounted';
 import { usePageAnnouncement } from '@/hooks/usePageAnnouncement';
 import { AccessibleButton } from '@/components/ui/AccessibleButton';
+import { FocusAnnouncement } from '@/components/accessibility/FocusAnnouncement';
+import { AnnounceableText } from '@/components/accessibility/AnnounceableText';
+import { ApplicationCard } from '@/components/accessibility/ApplicationCard';
+import { StatisticsCards } from '@/components/accessibility/StatisticsCards';
 import { announce } from '@/lib/audio';
 import { CheckCircle2, Clock, XCircle, Calendar, Building2 } from 'lucide-react';
 import type { Application, ApplicationStatus } from '@/types/application';
@@ -127,10 +131,20 @@ export default function ApplicationsPage() {
     <div className="container py-8">
       <div className="max-w-4xl mx-auto">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Riwayat Lamaran</h1>
-          <p className="text-muted-foreground">
+          <FocusAnnouncement
+            description="Halaman Riwayat Lamaran. Di halaman ini, Anda dapat melihat semua lamaran pekerjaan yang telah dikirim, status setiap lamaran, tanggal lamaran, dan statistik keseluruhan."
+            label="Halaman Riwayat Lamaran"
+          >
+            <h1 className="text-3xl font-bold mb-2" tabIndex={0}>Riwayat Lamaran</h1>
+          </FocusAnnouncement>
+          <AnnounceableText
+            description="Halaman ini menampilkan semua lamaran pekerjaan yang telah Anda kirim. Anda dapat melacak status setiap lamaran, melihat tanggal lamaran, dan memeriksa statistik keseluruhan."
+            label="Deskripsi Halaman"
+            as="p"
+            className="text-muted-foreground"
+          >
             Lacak status semua lamaran pekerjaan Anda
-          </p>
+          </AnnounceableText>
         </header>
 
         {applications.length === 0 ? (
@@ -150,92 +164,22 @@ export default function ApplicationsPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {applications.map((application) => {
-              const statusInfo = getStatusInfo(application.status);
-              return (
-                <div
-                  key={application.id}
-                  className="p-6 border border-border rounded-lg bg-card hover:shadow-card-hover transition-all"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Building2 className="w-5 h-5 text-muted-foreground" />
-                        <h3 className="text-xl font-semibold">
-                          Software Developer
-                        </h3>
-                        {application.rpaUsed && (
-                          <span className="px-2 py-1 text-xs bg-primary/10 text-primary rounded-full">
-                            Otomatis
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-muted-foreground mb-4">
-                        PT Teknologi Indonesia
-                      </p>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span>
-                          Dikirim: {formatDate(application.appliedAt)}
-                        </span>
-                        {application.interviewDate && (
-                          <span>
-                            Wawancara:{' '}
-                            {formatDate(application.interviewDate)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div
-                      className={`flex items-center gap-2 ${statusInfo.color}`}
-                    >
-                      {statusInfo.icon}
-                      <span className="font-medium">{statusInfo.label}</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {applications.map((application) => (
+              <ApplicationCard
+                key={application.id}
+                application={application}
+                jobTitle="Software Developer"
+                companyName="PT Teknologi Indonesia"
+                statusConfig={statusConfig}
+                formatDate={formatDate}
+              />
+            ))}
           </div>
         )}
 
         {/* Statistics */}
         {applications.length > 0 && (
-          <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-4 border border-border rounded-lg bg-card text-center">
-              <div className="text-2xl font-bold text-primary">
-                {applications.length}
-              </div>
-              <div className="text-sm text-muted-foreground">Total Lamaran</div>
-            </div>
-            <div className="p-4 border border-border rounded-lg bg-card text-center">
-              <div className="text-2xl font-bold text-yellow-500">
-                {
-                  applications.filter((a) => a.status === 'under-review')
-                    .length
-                }
-              </div>
-              <div className="text-sm text-muted-foreground">Sedang Ditinjau</div>
-            </div>
-            <div className="p-4 border border-border rounded-lg bg-card text-center">
-              <div className="text-2xl font-bold text-green-500">
-                {
-                  applications.filter((a) => a.status === 'offer-received')
-                    .length
-                }
-              </div>
-              <div className="text-sm text-muted-foreground">Tawaran</div>
-            </div>
-            <div className="p-4 border border-border rounded-lg bg-card text-center">
-              <div className="text-2xl font-bold text-purple-500">
-                {
-                  applications.filter(
-                    (a) => a.status === 'interview-scheduled'
-                  ).length
-                }
-              </div>
-              <div className="text-sm text-muted-foreground">Wawancara</div>
-            </div>
-          </div>
+          <StatisticsCards applications={applications} />
         )}
       </div>
     </div>
