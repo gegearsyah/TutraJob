@@ -1,0 +1,149 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Primary - Deep Navy (Trust, Government) */
+    --primary: 220 70% 18%;
+    --primary-foreground: 45 100% 96%;
+
+    /* Secondary - Rich Gold (Achievement, Indonesia) */
+    --secondary: 38 92% 50%;
+    --secondary-foreground: 220 70% 10%;
+
+    /* Background & Surfaces */
+    --background: 220 20% 98%;
+    --foreground: 220 70% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 70% 12%;
+
+    /* Muted & Accent */
+    --muted: 220 15% 94%;
+    --muted-foreground: 220 10% 45%;
+    --accent: 38 92% 95%;
+    --accent-foreground: 38 92% 30%;
+
+    /* States */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 152 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 220 70% 10%;
+
+    /* Borders & Input */
+    --border: 220 20% 90%;
+    --input: 220 20% 90%;
+    --ring: 220 70% 18%;
+
+    /* Border Radius */
+    --radius: 0.75rem;
+
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 70% 12%;
+
+    /* Sidebar */
+    --sidebar-background: 220 70% 18%;
+    --sidebar-foreground: 220 20% 95%;
+    --sidebar-primary: 38 92% 50%;
+    --sidebar-primary-foreground: 220 70% 10%;
+    --sidebar-accent: 220 60% 25%;
+    --sidebar-accent-foreground: 220 20% 95%;
+    --sidebar-border: 220 50% 25%;
+    --sidebar-ring: 38 92% 50%;
+
+    /* Multi-tenant Colors */
+    --mitra-primary: 250 84% 67%;
+    --mitra-secondary: 250 84% 57%;
+    --talenta-primary: 38 92% 50%;
+    --talenta-secondary: 38 92% 40%;
+    --industri-primary: 217 91% 60%;
+    --industri-secondary: 217 91% 50%;
+  }
+
+  .dark {
+    /* Primary - Gold (for buttons, highlights) */
+    --primary: 38 92% 50%;
+    --primary-foreground: 220 70% 10%;
+
+    /* Secondary - Navy (for secondary elements) */
+    --secondary: 220 60% 30%;
+    --secondary-foreground: 220 20% 95%;
+
+    /* Background - Deep Navy */
+    --background: 220 70% 8%;
+    --foreground: 220 20% 95%;
+    --card: 220 60% 12%;
+    --card-foreground: 220 20% 95%;
+
+    /* Muted - Medium navy */
+    --muted: 220 50% 18%;
+    --muted-foreground: 220 15% 70%;
+
+    /* Accent - Gold tinted */
+    --accent: 38 60% 20%;
+    --accent-foreground: 38 92% 70%;
+
+    /* Borders */
+    --border: 220 50% 25%;
+    --input: 220 50% 25%;
+    --ring: 38 92% 50%;
+
+    /* Popover */
+    --popover: 220 60% 12%;
+    --popover-foreground: 220 20% 95%;
+
+    /* Sidebar */
+    --sidebar-background: 220 70% 18%;
+    --sidebar-foreground: 220 20% 95%;
+    --sidebar-primary: 38 92% 50%;
+    --sidebar-primary-foreground: 220 70% 10%;
+    --sidebar-accent: 220 60% 25%;
+    --sidebar-accent-foreground: 220 20% 95%;
+    --sidebar-border: 220 50% 25%;
+    --sidebar-ring: 38 92% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  /* Custom Scrollbar */
+  .scrollbar-custom::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 9999px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.3);
+    border-radius: 9999px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.5);
+  }
+
+  /* Text Gradients */
+  .text-gradient-primary {
+    @apply bg-gradient-primary bg-clip-text text-transparent;
+  }
+
+  .text-gradient-gold {
+    @apply bg-gradient-gold bg-clip-text text-transparent;
+  }
+}

@@ -1,0 +1,27 @@
+# Files to ignore during Vercel deployment
+node_modules
+.next
+.env*.local
+.env
+.vercel
+*.log
+.DS_Store
+coverage
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# Documentation (optional - remove if you want to include docs)
+*.md
+!README.md
+
+# Scripts (optional - remove if needed)
+check-env.js
+debug-env.js
+fix-env.js
+
+# Supabase local files
+supabase/.temp
+supabase/.branches
