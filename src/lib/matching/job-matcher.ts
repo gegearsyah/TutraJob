@@ -134,7 +134,8 @@ function calculateAccessibilityMatch(
       score = 100;
     } else if (jobLevel === requiredLevel) {
       score = levelScores[jobLevel];
-    } else if (requiredLevel === 'high' && jobLevel !== 'high') {
+    } else if (requiredLevel === 'high') {
+      // If required is high but job is not high (already checked above)
       score = 30; // High requirement not met
     } else {
       score = 50; // Partial match
