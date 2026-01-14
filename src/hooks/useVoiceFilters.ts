@@ -23,6 +23,113 @@ interface VoiceCommand {
   };
 }
 
+/**
+ * Parse voice command into structured command
+ * Pure function - no dependencies on component state
+ */
+function parseVoiceCommand(transcript: string): VoiceCommand {
+  const lower = transcript.toLowerCase();
+
+  // Clear filters
+  if (
+    lower.includes('hapus') ||
+    lower.includes('reset') ||
+    lower.includes('bersihkan') ||
+    lower.includes('clear')
+  ) {
+    return { action: 'clear', params: {} };
+  }
+
+  // Help command
+  if (
+    lower.includes('bantuan') ||
+    lower.includes('help') ||
+    lower.includes('perintah') ||
+    lower.includes('command')
+  ) {
+    return { action: 'help', params: {} };
+  }
+
+  // Default to filter action
+  const params: VoiceCommand['params'] = {};
+
+  // Location filters
+  const locations: string[] = [];
+  if (lower.includes('jakarta')) {
+    locations.push('Jakarta Pusat');
+    locations.push('Jakarta Selatan');
+    locations.push('Jakarta Utara');
+    locations.push('Jakarta Barat');
+    locations.push('Jakarta Timur');
+  }
+  if (lower.includes('bandung')) locations.push('Bandung');
+  if (lower.includes('surabaya')) locations.push('Surabaya');
+  if (lower.includes('yogyakarta') || lower.includes('jogja')) locations.push('Yogyakarta');
+  if (lower.includes('semarang')) locations.push('Semarang');
+  if (lower.includes('medan')) locations.push('Medan');
+  if (lower.includes('makassar')) locations.push('Makassar');
+  if (lower.includes('denpasar')) locations.push('Denpasar');
+  if (locations.length > 0) {
+    params.location = locations;
+  }
+
+  // TransJakarta filter
+  if (
+    lower.includes('transjakarta') ||
+    lower.includes('trans jakarta') ||
+    lower.includes('dekat transjakarta') ||
+    lower.includes('stasiun transjakarta')
+  ) {
+    params.transjakarta = true;
+  }
+
+  // Accessibility level filters
+  if (lower.includes('aksesibilitas tinggi') || lower.includes('aksesibilitas tinggi')) {
+    params.accessibility = ['high'];
+  } else if (lower.includes('aksesibilitas sedang') || lower.includes('aksesibilitas medium')) {
+    params.accessibility = ['medium'];
+  } else if (lower.includes('aksesibilitas rendah') || lower.includes('aksesibilitas low')) {
+    params.accessibility = ['low'];
+  } else if (lower.includes('aksesibilitas')) {
+    // If just "aksesibilitas" is mentioned, default to high
+    params.accessibility = ['high'];
+  }
+
+  // Work arrangement filters
+  if (
+    lower.includes('remote') ||
+    lower.includes('kerja remote') ||
+    lower.includes('kerja dari rumah') ||
+    lower.includes('wfh')
+  ) {
+    params.workArrangement = ['remote'];
+  } else if (
+    lower.includes('hybrid') ||
+    lower.includes('kerja hybrid') ||
+    lower.includes('campuran')
+  ) {
+    params.workArrangement = ['hybrid'];
+  } else if (
+    lower.includes('on-site') ||
+    lower.includes('onsite') ||
+    lower.includes('di kantor') ||
+    lower.includes('kerja di kantor')
+  ) {
+    params.workArrangement = ['on-site'];
+  }
+
+  // Salary filters
+  const salaryMatch = lower.match(/(\d+)\s*(juta|million)/);
+  if (salaryMatch) {
+    const amount = parseInt(salaryMatch[1], 10);
+    if (lower.includes('diatas') || lower.includes('lebih dari') || lower.includes('minimal')) {
+      params.salaryMin = amount * 1000000; // Convert to Rupiah
+    }
+  }
+
+  return { action: 'filter', params };
+}
+
 export function useVoiceFilters(
   onFilterChange: (filters: FilterState) => void,
   currentFilters: FilterState
@@ -31,6 +138,7 @@ export function useVoiceFilters(
   const [isSupported, setIsSupported] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const applyCommandRef = useRef<(command: VoiceCommand) => void>();
   const isMounted = useIsMounted();
 
   // Check if Web Speech API is supported
@@ -87,7 +195,10 @@ export function useVoiceFilters(
 
         try {
           const command = parseVoiceCommand(transcript);
-          applyVoiceCommand(command);
+          // Use ref to get the latest version of applyVoiceCommand
+          if (applyCommandRef.current) {
+            applyCommandRef.current(command);
+          }
         } catch (err) {
           const errorMsg =
             err instanceof Error
@@ -105,112 +216,6 @@ export function useVoiceFilters(
       setError('Browser Anda tidak mendukung pengenalan suara. Gunakan browser modern seperti Chrome atau Edge.');
     }
   }, [isMounted]);
-
-  /**
-   * Parse voice command into structured command
-   */
-  const parseVoiceCommand = (transcript: string): VoiceCommand => {
-    const lower = transcript.toLowerCase();
-
-    // Clear filters
-    if (
-      lower.includes('hapus') ||
-      lower.includes('reset') ||
-      lower.includes('bersihkan') ||
-      lower.includes('clear')
-    ) {
-      return { action: 'clear', params: {} };
-    }
-
-    // Help command
-    if (
-      lower.includes('bantuan') ||
-      lower.includes('help') ||
-      lower.includes('perintah') ||
-      lower.includes('command')
-    ) {
-      return { action: 'help', params: {} };
-    }
-
-    // Default to filter action
-    const params: VoiceCommand['params'] = {};
-
-    // Location filters
-    const locations: string[] = [];
-    if (lower.includes('jakarta')) {
-      locations.push('Jakarta Pusat');
-      locations.push('Jakarta Selatan');
-      locations.push('Jakarta Utara');
-      locations.push('Jakarta Barat');
-      locations.push('Jakarta Timur');
-    }
-    if (lower.includes('bandung')) locations.push('Bandung');
-    if (lower.includes('surabaya')) locations.push('Surabaya');
-    if (lower.includes('yogyakarta') || lower.includes('jogja')) locations.push('Yogyakarta');
-    if (lower.includes('semarang')) locations.push('Semarang');
-    if (lower.includes('medan')) locations.push('Medan');
-    if (lower.includes('makassar')) locations.push('Makassar');
-    if (lower.includes('denpasar')) locations.push('Denpasar');
-    if (locations.length > 0) {
-      params.location = locations;
-    }
-
-    // TransJakarta filter
-    if (
-      lower.includes('transjakarta') ||
-      lower.includes('trans jakarta') ||
-      lower.includes('dekat transjakarta') ||
-      lower.includes('stasiun transjakarta')
-    ) {
-      params.transjakarta = true;
-    }
-
-    // Accessibility level filters
-    if (lower.includes('aksesibilitas tinggi') || lower.includes('aksesibilitas tinggi')) {
-      params.accessibility = ['high'];
-    } else if (lower.includes('aksesibilitas sedang') || lower.includes('aksesibilitas medium')) {
-      params.accessibility = ['medium'];
-    } else if (lower.includes('aksesibilitas rendah') || lower.includes('aksesibilitas low')) {
-      params.accessibility = ['low'];
-    } else if (lower.includes('aksesibilitas')) {
-      // If just "aksesibilitas" is mentioned, default to high
-      params.accessibility = ['high'];
-    }
-
-    // Work arrangement filters
-    if (
-      lower.includes('remote') ||
-      lower.includes('kerja remote') ||
-      lower.includes('kerja dari rumah') ||
-      lower.includes('wfh')
-    ) {
-      params.workArrangement = ['remote'];
-    } else if (
-      lower.includes('hybrid') ||
-      lower.includes('kerja hybrid') ||
-      lower.includes('campuran')
-    ) {
-      params.workArrangement = ['hybrid'];
-    } else if (
-      lower.includes('on-site') ||
-      lower.includes('onsite') ||
-      lower.includes('di kantor') ||
-      lower.includes('kerja di kantor')
-    ) {
-      params.workArrangement = ['on-site'];
-    }
-
-    // Salary filters
-    const salaryMatch = lower.match(/(\d+)\s*(juta|million)/);
-    if (salaryMatch) {
-      const amount = parseInt(salaryMatch[1], 10);
-      if (lower.includes('diatas') || lower.includes('lebih dari') || lower.includes('minimal')) {
-        params.salaryMin = amount * 1000000; // Convert to Rupiah
-      }
-    }
-
-    return { action: 'filter', params };
-  };
 
   /**
    * Apply voice command to filters
@@ -305,6 +310,11 @@ export function useVoiceFilters(
     },
     [isMounted, currentFilters, onFilterChange]
   );
+
+  // Update ref whenever applyVoiceCommand changes
+  useEffect(() => {
+    applyCommandRef.current = applyVoiceCommand;
+  }, [applyVoiceCommand]);
 
   /**
    * Start listening for voice commands
