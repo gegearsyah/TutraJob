@@ -14,6 +14,7 @@ import { announce, playAudioCue } from '@/lib/audio';
 import { triggerHaptic } from '@/lib/haptic';
 import { AccessibleInput } from '@/components/forms/AccessibleInput';
 import { AccessibleButton } from '@/components/ui/AccessibleButton';
+import { useFocusAnnouncement } from '@/hooks/useFocusAnnouncement';
 import { Eye, EyeOff, UserPlus, Mail, Lock, User, LogIn, ArrowLeft } from 'lucide-react';
 
 export default function SignupPage() {
@@ -216,11 +217,21 @@ export default function SignupPage() {
             }
           />
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full min-h-[48px] px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
+          {(() => {
+            const signupButtonProps = useFocusAnnouncement({
+              description: 'Tombol Daftar. Klik untuk membuat akun baru dengan informasi yang telah Anda isi di formulir.',
+              label: 'Tombol Daftar',
+              context: 'Tekan Enter untuk membuat akun baru',
+              announceOnFocus: true,
+              announceOnLongPress: true,
+            });
+            return (
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full min-h-[48px] px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                {...signupButtonProps}
+              >
             {loading ? (
               <>
                 <span className="animate-spin">⏳</span>
@@ -232,7 +243,9 @@ export default function SignupPage() {
                 <span>Daftar</span>
               </>
             )}
-          </button>
+              </button>
+            );
+          })()}
         </form>
 
         <div className="space-y-3">

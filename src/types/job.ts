@@ -40,7 +40,7 @@ export interface JobListing {
   workArrangement: 'remote' | 'hybrid' | 'on-site';
   accessibility: JobAccessibility;
   applicationUrl: string;
-  deadline?: Date;
+  deadline?: Date; // Application deadline
   source: string;
   sourceId: string;
   createdAt: Date;

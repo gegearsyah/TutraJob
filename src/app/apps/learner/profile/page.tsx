@@ -56,14 +56,95 @@ export default function ProfilePage() {
     }
 
     try {
-      // TODO: Save profile to Supabase
-      // This will be implemented with database schema
-      console.log('Profile data:', data);
+      // Save profile to Supabase
+      const profileData = {
+        id: userId,
+        full_name: data.personalInfo.fullName,
+        email: data.personalInfo.email,
+        phone: data.personalInfo.phone,
+        address_street: data.personalInfo.address.street,
+        address_city: data.personalInfo.address.city,
+        address_postal_code: data.personalInfo.address.postalCode,
+        date_of_birth: data.personalInfo.dateOfBirth ? data.personalInfo.dateOfBirth.toISOString().split('T')[0] : null,
+        national_id: data.personalInfo.nationalId || null,
+        cover_letter: data.professionalInfo.coverLetter || null,
+        cv_file_path: data.cvFilePath || null, // Set by ProfileForm after upload
+        skills: data.professionalInfo.skills || [],
+        certifications: data.professionalInfo.certifications?.map((c: any) => typeof c === 'string' ? c : c.name) || [],
+        disability_type: data.accessibility.disabilityType || null,
+        accommodations: data.accessibility.accommodations || [],
+        assistive_tech: data.accessibility.assistiveTech || [],
+        preferred_salary_min: data.preferences.preferredSalary.min || 0,
+        preferred_salary_max: data.preferences.preferredSalary.max || 0,
+        preferred_locations: data.preferences.preferredLocation || [],
+        work_arrangement: data.preferences.workArrangement || 'hybrid',
+      };
+
+      // Upsert profile
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .upsert(profileData, { onConflict: 'id' });
+
+      if (profileError) throw profileError;
+
+      // Save work experience
+      if (data.professionalInfo.workExperience && data.professionalInfo.workExperience.length > 0) {
+        const workExpData = data.professionalInfo.workExperience.map(exp => ({
+          user_id: userId,
+          company: exp.company,
+          position: exp.position,
+          start_date: exp.startDate.toISOString().split('T')[0],
+          end_date: exp.endDate ? exp.endDate.toISOString().split('T')[0] : null,
+          current: exp.current,
+          description: exp.description || null,
+        }));
+
+        // Delete existing work experience
+        await supabase.from('work_experience').delete().eq('user_id', userId);
+
+        // Insert new work experience
+        if (workExpData.length > 0) {
+          const { error: workExpError } = await supabase
+            .from('work_experience')
+            .insert(workExpData);
+
+          if (workExpError) throw workExpError;
+        }
+      }
+
+      // Save education
+      if (data.professionalInfo.education && data.professionalInfo.education.length > 0) {
+        const educationData = data.professionalInfo.education.map(edu => ({
+          user_id: userId,
+          institution: edu.institution,
+          degree: edu.degree,
+          field: edu.field,
+          start_date: edu.startDate.toISOString().split('T')[0],
+          end_date: edu.endDate ? edu.endDate.toISOString().split('T')[0] : null,
+          current: edu.current,
+        }));
+
+        // Delete existing education
+        await supabase.from('education').delete().eq('user_id', userId);
+
+        // Insert new education
+        if (educationData.length > 0) {
+          const { error: educationError } = await supabase
+            .from('education')
+            .insert(educationData);
+
+          if (educationError) throw educationError;
+        }
+      }
+
       if (isMounted) {
         announce('Profil berhasil disimpan');
       }
     } catch (error) {
       console.error('Error saving profile:', error);
+      if (isMounted) {
+        announce('Terjadi kesalahan saat menyimpan profil');
+      }
       throw error;
     }
   };

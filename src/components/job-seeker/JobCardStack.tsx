@@ -16,7 +16,9 @@ interface JobCardStackProps {
   onApply: (jobId: string) => void;
   onDismiss: (jobId: string) => void;
   onViewDetails: (jobId: string) => void;
+  onCompare?: (jobId: string) => void; // Optional compare handler
   className?: string;
+  matchScores?: Map<string, number>; // Map of jobId to match score
 }
 
 export function JobCardStack({
@@ -24,7 +26,9 @@ export function JobCardStack({
   onApply,
   onDismiss,
   onViewDetails,
+  onCompare,
   className,
+  matchScores,
 }: JobCardStackProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [dismissedJobs, setDismissedJobs] = useState<Set<string>>(new Set());
@@ -90,6 +94,8 @@ export function JobCardStack({
           onApply={handleApply}
           onDismiss={handleDismiss}
           onViewDetails={handleViewDetails}
+          onCompare={onCompare}
+          matchScore={matchScores?.get(currentJob.id)}
         />
       </div>
 

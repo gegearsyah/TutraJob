@@ -8,6 +8,7 @@
 import { useState, useEffect } from 'react';
 import { useIsMounted } from '@/lib/hooks/useIsMounted';
 import { usePageAnnouncement } from '@/hooks/usePageAnnouncement';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { JobCard } from '@/components/job-seeker/JobCard';
 import { AccessibleButton } from '@/components/ui/AccessibleButton';
 import { SavedJobCard } from '@/components/accessibility/SavedJobCard';
@@ -16,6 +17,7 @@ import { AnnounceableText } from '@/components/accessibility/AnnounceableText';
 import { announce } from '@/lib/audio';
 import { triggerHaptic } from '@/lib/haptic';
 import { playAudioCue } from '@/lib/audio';
+import { supabase } from '@/lib/supabase/client';
 import type { JobListing } from '@/types/job';
 import { Bookmark, Trash2 } from 'lucide-react';
 
@@ -60,8 +62,29 @@ export default function SavedJobsPage() {
   // Announce page on load and stop previous announcements
   usePageAnnouncement('Pekerjaan Tersimpan', 'Lihat pekerjaan yang telah Anda simpan');
 
+  // Require authentication for this page
+  const { isAuthenticated, loading: authLoading } = useAuthGuard({
+    requireAuth: true,
+    redirectTo: '/apps/learner/auth/login',
+  });
+
   const [savedJobs, setSavedJobs] = useState<JobListing[]>(mockSavedJobs);
   const isMounted = useIsMounted();
+
+  // Show loading or redirect if not authenticated
+  if (authLoading) {
+    return (
+      <div className="container py-8">
+        <div className="text-center">
+          <p className="text-muted-foreground">Memverifikasi autentikasi...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null; // Will redirect via useAuthGuard
+  }
 
   useEffect(() => {
     if (isMounted && savedJobs.length > 0) {
@@ -78,7 +101,19 @@ export default function SavedJobsPage() {
     }
   };
 
-  const handleApply = (jobId: string) => {
+  const handleApply = async (jobId: string) => {
+    // Check if user is authenticated (should be, but double-check)
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      const returnUrl = encodeURIComponent('/apps/learner/saved');
+      window.location.href = `/apps/learner/auth/login?returnUrl=${returnUrl}`;
+      if (isMounted) {
+        announce('Anda harus login terlebih dahulu untuk melamar pekerjaan');
+      }
+      return;
+    }
+
     if (isMounted) {
       triggerHaptic('apply-success');
       playAudioCue('apply-success');

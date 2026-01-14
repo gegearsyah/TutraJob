@@ -10,6 +10,7 @@ import { PlayCircle, RotateCcw } from 'lucide-react';
 import { useIsMounted } from '@/lib/hooks/useIsMounted';
 import { announce } from '@/lib/audio';
 import { triggerHaptic } from '@/lib/haptic';
+import { useFocusAnnouncement } from '@/hooks/useFocusAnnouncement';
 
 interface TutorialButtonProps {
   onStart: () => void;
@@ -42,11 +43,22 @@ export function TutorialButton({
     onStart();
   };
 
+  const buttonProps = useFocusAnnouncement({
+    description: hasCompleted 
+      ? 'Tombol Mulai Ulang Tutorial. Klik untuk memulai tutorial dari awal. Tutorial akan memandu Anda melalui semua fitur aplikasi dengan langkah demi langkah.'
+      : 'Tombol Mulai Tutorial. Klik untuk memulai tutorial yang akan memandu Anda melalui semua fitur aplikasi dengan langkah demi langkah. Tutorial ini akan menjelaskan cara menggunakan navigasi, mencari pekerjaan, melamar, dan mengelola profil.',
+    label: hasCompleted ? 'Tombol Mulai Ulang Tutorial' : 'Tombol Mulai Tutorial',
+    context: 'Tekan Enter untuk memulai tutorial',
+    announceOnFocus: true,
+    announceOnLongPress: true,
+  });
+
   return (
     <button
       onClick={handleClick}
-      className={`flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors min-h-[48px] ${className || ''}`}
+      className={`flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors min-h-[48px] w-full sm:w-auto ${className || ''}`}
       aria-label={hasCompleted ? 'Mulai ulang tutorial' : 'Mulai tutorial'}
+      {...buttonProps}
     >
       {hasCompleted ? (
         <>

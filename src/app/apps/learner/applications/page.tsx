@@ -6,9 +6,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 import { useIsMounted } from '@/lib/hooks/useIsMounted';
 import { usePageAnnouncement } from '@/hooks/usePageAnnouncement';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { AccessibleButton } from '@/components/ui/AccessibleButton';
 import { FocusAnnouncement } from '@/components/accessibility/FocusAnnouncement';
 import { AnnounceableText } from '@/components/accessibility/AnnounceableText';
@@ -53,13 +55,19 @@ export default function ApplicationsPage() {
   // Announce page on load and stop previous announcements
   usePageAnnouncement('Lamaran Saya', 'Lacak status lamaran pekerjaan Anda');
 
+  // Require authentication for this page
+  const { isAuthenticated, userId, loading: authLoading } = useAuthGuard({
+    requireAuth: true,
+    redirectTo: '/apps/learner/auth/login',
+  });
+
   const [applications, setApplications] = useState<Application[]>([]);
   const [statusHistoryMap, setStatusHistoryMap] = useState<Record<string, ApplicationStatusUpdate[]>>({});
   const [loading, setLoading] = useState(true);
   const isMounted = useIsMounted();
 
   useEffect(() => {
-    if (!isMounted) return;
+    if (!isMounted || authLoading || !isAuthenticated) return;
 
     const loadApplications = async () => {
       try {
@@ -128,7 +136,7 @@ export default function ApplicationsPage() {
     };
 
     loadApplications();
-  }, [isMounted]);
+  }, [isMounted, authLoading, isAuthenticated]);
 
   const getStatusInfo = (status: ApplicationStatus) => {
     return statusConfig[status] || statusConfig.applied;
@@ -142,14 +150,20 @@ export default function ApplicationsPage() {
     }).format(date);
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="container py-8">
         <div className="text-center">
-          <p className="text-muted-foreground">Memuat data lamaran...</p>
+          <p className="text-muted-foreground">
+            {authLoading ? 'Memverifikasi autentikasi...' : 'Memuat data lamaran...'}
+          </p>
         </div>
       </div>
     );
+  }
+
+  if (!isAuthenticated) {
+    return null; // Will redirect via useAuthGuard
   }
 
   return (

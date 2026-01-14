@@ -87,9 +87,9 @@ export default function LearnerPage() {
             </Link>
           </FocusAnnouncement>
           <FocusAnnouncement
-            description="Lihat dan lacak status semua lamaran pekerjaan yang telah Anda kirim. Anda dapat melihat status seperti Dikirim, Sedang Ditinjau, Wawancara Dijadwalkan, Tawaran Diterima, atau Ditolak."
+            description="Lihat dan lacak status semua lamaran pekerjaan yang telah Anda kirim. Anda dapat melihat status seperti Dikirim, Sedang Ditinjau, Wawancara Dijadwalkan, Tawaran Diterima, atau Ditolak. Halaman ini memerlukan login."
             label="Riwayat Lamaran"
-            context="Tekan Enter untuk membuka halaman riwayat lamaran"
+            context="Tekan Enter untuk membuka halaman riwayat lamaran. Anda akan diarahkan ke login jika belum masuk."
             isNavigation={true}
           >
             <Link
@@ -103,9 +103,9 @@ export default function LearnerPage() {
             </Link>
           </FocusAnnouncement>
           <FocusAnnouncement
-            description="Akses pekerjaan yang telah Anda simpan untuk dilamar nanti. Di halaman ini, Anda dapat melihat semua pekerjaan yang disimpan, melamar, atau menghapus dari daftar tersimpan."
+            description="Akses pekerjaan yang telah Anda simpan untuk dilamar nanti. Di halaman ini, Anda dapat melihat semua pekerjaan yang disimpan, melamar, atau menghapus dari daftar tersimpan. Halaman ini memerlukan login."
             label="Pekerjaan Tersimpan"
-            context="Tekan Enter untuk membuka halaman pekerjaan tersimpan"
+            context="Tekan Enter untuk membuka halaman pekerjaan tersimpan. Anda akan diarahkan ke login jika belum masuk."
             isNavigation={true}
           >
             <Link
@@ -119,9 +119,9 @@ export default function LearnerPage() {
             </Link>
           </FocusAnnouncement>
           <FocusAnnouncement
-            description="Lengkapi profil pribadi Anda dengan mengisi data pribadi, upload CV atau resume, menambahkan pengalaman kerja, pendidikan, dan mengatur preferensi pekerjaan. Profil yang lengkap meningkatkan peluang mendapatkan pekerjaan."
+            description="Lengkapi profil pribadi Anda dengan mengisi data pribadi, upload CV atau resume, menambahkan pengalaman kerja, pendidikan, dan mengatur preferensi pekerjaan. Profil yang lengkap meningkatkan peluang mendapatkan pekerjaan. Halaman ini memerlukan login."
             label="Lengkapi Profil"
-            context="Tekan Enter untuk membuka halaman profil"
+            context="Tekan Enter untuk membuka halaman profil. Anda akan diarahkan ke login jika belum masuk."
             isNavigation={true}
           >
             <Link

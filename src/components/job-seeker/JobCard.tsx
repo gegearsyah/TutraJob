@@ -14,13 +14,16 @@ import { announce, playAudioCue } from '@/lib/audio';
 import { useIsMounted } from '@/lib/hooks/useIsMounted';
 import { useFocusAnnouncement } from '@/hooks/useFocusAnnouncement';
 import { cn } from '@/lib/utils';
+import { GitCompare } from 'lucide-react';
 
 interface JobCardProps {
   job: JobListing;
   onApply: (jobId: string) => void;
   onDismiss: (jobId: string) => void;
   onViewDetails: (jobId: string) => void;
+  onCompare?: (jobId: string) => void; // Optional compare handler
   className?: string;
+  matchScore?: number; // Optional match score (0-100)
 }
 
 export function JobCard({
@@ -28,7 +31,9 @@ export function JobCard({
   onApply,
   onDismiss,
   onViewDetails,
+  onCompare,
   className,
+  matchScore,
 }: JobCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSwiping, setIsSwiping] = useState<'left' | 'right' | null>(null);
@@ -165,6 +170,9 @@ export function JobCard({
         } else if (e.key === 'd' || e.key === 'D') {
           e.preventDefault();
           onDismiss(job.id);
+        } else if ((e.key === 'c' || e.key === 'C') && onCompare) {
+          e.preventDefault();
+          onCompare(job.id);
         }
       }}
     >
@@ -271,11 +279,11 @@ export function JobCard({
         </div>
       )}
 
-      {/* Action Buttons (Keyboard Accessible) */}
+      {/* Action Buttons (Keyboard Accessible) - Mobile optimized */}
       <div
         role="group"
         aria-label="Job actions"
-        className="flex gap-3 mt-6 pt-4 border-t border-border"
+        className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-6 pt-4 border-t border-border"
       >
         <button
           onClick={() => {
@@ -289,6 +297,21 @@ export function JobCard({
         >
           Lamar
         </button>
+        {onCompare && (
+          <button
+            onClick={() => {
+              onCompare(job.id);
+              triggerHaptic('confirmation');
+              announce(`Menambahkan ${job.title} ke perbandingan`);
+            }}
+            className="min-h-[48px] px-4 py-3 border border-border rounded-lg hover:bg-muted transition-colors flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            aria-label={`Bandingkan ${job.title} dengan pekerjaan lain`}
+          >
+            <GitCompare className="w-4 h-4" />
+            <span className="hidden sm:inline">Bandingkan</span>
+            <span className="sm:hidden">Banding</span>
+          </button>
+        )}
         <button
           onClick={() => {
             triggerHaptic('dismiss');

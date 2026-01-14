@@ -79,6 +79,7 @@ export const profileFormSchema = z.object({
         ),
       'File CV harus format PDF atau DOCX'
     ),
+  cvFilePath: z.string().optional(), // Path to uploaded CV in storage
 });
 
 export type ProfileFormData = z.infer<typeof profileFormSchema>;

@@ -241,10 +241,16 @@ export function TutorialOverlay({
 
   return (
     <>
-      {/* Overlay */}
+      {/* Overlay - Mobile optimized */}
       <div
         className="fixed inset-0 z-[9998] bg-black/60"
         onClick={handleSkip}
+        onTouchStart={(e) => {
+          // On mobile, only skip if touching overlay (not tooltip)
+          if (tooltipRef.current && !tooltipRef.current.contains(e.target as Node)) {
+            handleSkip();
+          }
+        }}
         aria-hidden="true"
       />
 
@@ -264,16 +270,33 @@ export function TutorialOverlay({
         />
       )}
 
-      {/* Tooltip */}
+      {/* Tooltip - Mobile optimized */}
       <div
         ref={tooltipRef}
-        className="fixed z-[10000] w-full max-w-md bg-card border border-border rounded-lg shadow-xl p-6"
-        style={getTooltipPosition()}
+        className="fixed z-[10000] w-[calc(100%-2rem)] max-w-md bg-card border border-border rounded-lg shadow-xl p-4 sm:p-6"
+        style={{
+          ...(typeof window !== 'undefined' && window.innerWidth < 640 ? {
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            maxHeight: '80vh',
+            overflowY: 'auto',
+            width: 'calc(100% - 2rem)',
+          } : getTooltipPosition()),
+        }}
         role="dialog"
         aria-modal="true"
         aria-labelledby="tutorial-title"
         aria-describedby="tutorial-description"
         {...gestureHandlers}
+        onTouchStart={(e) => {
+          // Prevent overlay click from triggering when touching tooltip
+          e.stopPropagation();
+        }}
+        onClick={(e) => {
+          // Prevent overlay click from triggering when clicking tooltip
+          e.stopPropagation();
+        }}
         onKeyDown={(e) => {
           // Keyboard navigation for tutorial
           if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
@@ -289,17 +312,17 @@ export function TutorialOverlay({
         }}
         tabIndex={-1}
       >
-        {/* Header */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            <h3 id="tutorial-title" className="text-lg font-semibold mb-1">
+        {/* Header - Mobile optimized */}
+        <div className="flex items-start justify-between mb-4 gap-2">
+          <div className="flex-1 min-w-0">
+            <h3 id="tutorial-title" className="text-base sm:text-lg font-semibold mb-1">
               {title}
             </h3>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+              <span className="whitespace-nowrap">
                 Langkah {currentStep + 1} dari {steps.length}
               </span>
-              <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
+              <div className="w-full sm:w-24 h-2 bg-muted rounded-full overflow-hidden">
                 <div
                   className="h-full bg-primary transition-all duration-300"
                   style={{ width: `${progress}%` }}
@@ -309,32 +332,38 @@ export function TutorialOverlay({
           </div>
           <button
             onClick={handleSkip}
-            className="min-w-[48px] min-h-[48px] p-2 hover:bg-muted rounded-lg transition-colors"
+            className="min-w-[48px] min-h-[48px] p-2 hover:bg-muted rounded-lg transition-colors flex-shrink-0"
             aria-label="Lewati tutorial"
+            onTouchStart={(e) => {
+              e.stopPropagation();
+              if (isMounted) {
+                triggerHaptic('dismiss');
+              }
+            }}
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Content - Focusable for screen readers */}
+        {/* Content - Focusable for screen readers - Mobile optimized */}
         <div 
           id="tutorial-description" 
           ref={setDescriptionRef}
-          className="mb-6 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-lg p-2 -m-2"
+          className="mb-4 sm:mb-6 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-lg p-2 -m-2 max-h-[40vh] sm:max-h-none overflow-y-auto"
           tabIndex={0}
           role="region"
           aria-label={`Langkah ${currentStep + 1}: ${step.title}`}
         >
-          <h4 className="text-base font-medium mb-2">{step.title}</h4>
-          <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+          <h4 className="text-sm sm:text-base font-medium mb-2">{step.title}</h4>
+          <p className="text-xs sm:text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
             {step.description}
           </p>
           {step.targetButtonLabel && (
             <div className="mt-3 p-3 bg-primary/10 border border-primary/20 rounded-lg">
-              <p className="text-sm font-medium text-primary mb-1">
+              <p className="text-xs sm:text-sm font-medium text-primary mb-1">
                 Tindakan yang diperlukan:
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                 {step.targetButtonInstructions || `Klik tombol "${step.targetButtonLabel}"`}
               </p>
             </div>
@@ -346,12 +375,12 @@ export function TutorialOverlay({
           Navigasi tutorial: Tekan Tab untuk berpindah ke tombol navigasi. Geser kanan untuk langkah berikutnya, geser kiri untuk langkah sebelumnya.
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center justify-between gap-4">
+        {/* Actions - Mobile optimized */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
           <button
             onClick={handlePrevious}
             disabled={isFirstStep}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px]"
+            className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] flex-1 sm:flex-initial"
             aria-label="Langkah sebelumnya, tekan Enter atau geser kiri"
             aria-disabled={isFirstStep}
             onFocus={() => {
@@ -360,24 +389,36 @@ export function TutorialOverlay({
                 announce('Fokus pada tombol Langkah sebelumnya. Tekan Enter untuk kembali.');
               }
             }}
+            onTouchStart={(e) => {
+              e.stopPropagation();
+              if (!isFirstStep && isMounted) {
+                triggerHaptic('loading');
+              }
+            }}
           >
             <ChevronLeft className="w-5 h-5" />
-            <span className="hidden sm:inline">Sebelumnya</span>
+            <span>Sebelumnya</span>
           </button>
 
           <button
             onClick={handleSkip}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors min-h-[48px]"
+            className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border hover:bg-muted transition-colors min-h-[48px] flex-1 sm:flex-initial"
             aria-label="Lewati tutorial, tekan Enter atau geser bawah"
+            onTouchStart={(e) => {
+              e.stopPropagation();
+              if (isMounted) {
+                triggerHaptic('dismiss');
+              }
+            }}
           >
             <SkipForward className="w-5 h-5" />
-            <span className="hidden sm:inline">Lewati</span>
+            <span>Lewati</span>
           </button>
 
           <button
             ref={(el) => setNextButtonRef(el)}
             onClick={handleNext}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors min-h-[48px]"
+            className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors min-h-[48px] flex-1 sm:flex-initial"
             aria-label={isLastStep ? 'Selesai tutorial' : 'Langkah berikutnya, tekan Enter atau geser kanan'}
             aria-describedby="tutorial-navigation-hint"
             onFocus={() => {
@@ -385,6 +426,12 @@ export function TutorialOverlay({
               if (isMounted) {
                 const buttonLabel = isLastStep ? 'Selesai tutorial' : 'Langkah berikutnya';
                 announce(`Fokus pada tombol ${buttonLabel}. Tekan Enter untuk melanjutkan.`);
+              }
+            }}
+            onTouchStart={(e) => {
+              e.stopPropagation();
+              if (isMounted) {
+                triggerHaptic('apply-success');
               }
             }}
           >
@@ -395,7 +442,7 @@ export function TutorialOverlay({
               </>
             ) : (
               <>
-                <span className="hidden sm:inline">Berikutnya</span>
+                <span>Berikutnya</span>
                 <ChevronRight className="w-5 h-5" />
               </>
             )}

@@ -143,15 +143,20 @@ export function ProfileForm({
     setUploadProgress(0);
 
     try {
+      let cvFilePath: string | undefined = undefined;
+
       // Upload CV if provided
       if (data.cvFile && userId) {
         setUploadProgress(25);
-        await uploadCV(data.cvFile, userId);
+        const uploadResult = await uploadCV(data.cvFile, userId);
+        cvFilePath = uploadResult.path;
         setUploadProgress(50);
+        announce(`CV berhasil diunggah: ${data.cvFile.name}`);
       }
 
       setUploadProgress(75);
-      await onSubmit(data);
+      // Pass CV file path to onSubmit
+      await onSubmit({ ...data, cvFilePath });
       setUploadProgress(100);
 
       triggerHaptic('apply-success');

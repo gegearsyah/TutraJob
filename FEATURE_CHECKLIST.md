@@ -274,12 +274,16 @@ This document tracks the implementation progress of all features based on FEATUR
   - [ ] Salary range preferences
   - [ ] Work arrangement preferences
   - [ ] Match percentage calculation
-- [ ] **Voice-Activated Filters** - Voice commands for filtering
-  - [ ] "Show jobs near TransJakarta"
-  - [ ] "Show remote jobs only"
-  - [ ] "Show high accessibility jobs"
-  - [ ] "Show jobs paying above X million"
-  - [ ] Voice command recognition (Web Speech API)
+- [x] **Voice-Activated Filters** - Voice commands for filtering (`src/hooks/useVoiceFilters.ts`, `src/components/job-seeker/JobFilters.tsx`)
+  - [x] "Show jobs near TransJakarta" / "Tampilkan pekerjaan dekat TransJakarta"
+  - [x] "Show remote jobs only" / "Tampilkan pekerjaan remote"
+  - [x] "Show high accessibility jobs" / "Tampilkan pekerjaan dengan aksesibilitas tinggi"
+  - [x] "Show jobs paying above X million" / "Tampilkan pekerjaan dengan gaji diatas X juta"
+  - [x] Voice command recognition (Web Speech API with Indonesian language support)
+  - [x] Voice button in filter component with visual feedback
+  - [x] Error handling and user-friendly error messages
+  - [x] Help command for available voice commands
+  - [x] Clear filters via voice command
 - [ ] **Real-time Notifications** - Supabase real-time integration
   - [ ] Application status updates
   - [ ] New job matches

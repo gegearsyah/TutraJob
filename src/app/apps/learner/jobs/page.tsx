@@ -9,14 +9,20 @@ import { useState, useMemo, useEffect } from 'react';
 import { JobCardStack } from '@/components/job-seeker/JobCardStack';
 import { JobFilters, type FilterState } from '@/components/job-seeker/JobFilters';
 import { JobDetailModal } from '@/components/job-seeker/JobDetailModal';
+import { JobComparison } from '@/components/job-seeker/JobComparison';
 import { AccessibleButton } from '@/components/ui/AccessibleButton';
 import { FocusAnnouncement } from '@/components/accessibility/FocusAnnouncement';
 import { AnnounceableText } from '@/components/accessibility/AnnounceableText';
 import { usePageAnnouncement } from '@/hooks/usePageAnnouncement';
+import { Building2 } from 'lucide-react';
 import type { JobListing } from '@/types/job';
 import { triggerHaptic } from '@/lib/haptic';
 import { announce } from '@/lib/audio';
 import { enhanceJobWithAISummary, isAISummarizationAvailable } from '@/lib/ai/job-summarizer';
+import { matchJobsToUser, getMatchLevel } from '@/lib/matching/job-matcher';
+import { supabase } from '@/lib/supabase/client';
+import { useIsMounted } from '@/lib/hooks/useIsMounted';
+import { useDeadlineReminders } from '@/hooks/useDeadlineReminders';
 
 // Mock data - will be replaced with API calls
 // Using fixed dates to prevent hydration mismatches
@@ -101,6 +107,7 @@ const mockJobs: JobListing[] = [
     sourceId: 'dn-002',
     createdAt: MOCK_DATE,
     updatedAt: MOCK_DATE,
+    deadline: new Date('2024-02-20T23:59:59.000Z'),
   },
 ];
 
@@ -112,6 +119,11 @@ export default function JobsPage() {
   const [appliedJobs, setAppliedJobs] = useState<Set<string>>(new Set());
   const [selectedJob, setSelectedJob] = useState<JobListing | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [comparisonJobs, setComparisonJobs] = useState<JobListing[]>([]);
+  const [isComparisonOpen, setIsComparisonOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [showMatchScores, setShowMatchScores] = useState(true);
+  const isMounted = useIsMounted();
   const [filters, setFilters] = useState<FilterState>({
     search: '',
     location: [],
@@ -121,9 +133,60 @@ export default function JobsPage() {
     workArrangement: [],
   });
 
+  // Load user profile for job matching
+  useEffect(() => {
+    if (!isMounted) return;
+
+    const loadUserProfile = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profile) {
+          setUserProfile({
+            professionalInfo: {
+              skills: profile.skills || [],
+            },
+            preferences: {
+              preferredLocation: profile.preferred_locations || [],
+              preferredSalary: {
+                min: profile.preferred_salary_min || 0,
+                max: profile.preferred_salary_max || 0,
+              },
+              workArrangement: profile.work_arrangement || 'hybrid',
+            },
+            accessibility: {
+              requiredLevel: 'high' as const,
+              requiredAccommodations: profile.accommodations || [],
+            },
+          });
+        }
+      } catch (error) {
+        console.error('Error loading user profile:', error);
+      }
+    };
+
+    loadUserProfile();
+  }, [isMounted]);
+
+  // Calculate match scores if user profile is available
+  const jobMatches = useMemo(() => {
+    if (!userProfile) return null;
+    return matchJobsToUser(allJobs, userProfile);
+  }, [allJobs, userProfile]);
+
+  // Deadline reminders
+  useDeadlineReminders(allJobs);
+
   // Filter jobs based on current filters
   const filteredJobs = useMemo(() => {
-    return allJobs.filter((job) => {
+    let jobs = allJobs.filter((job) => {
       // Search filter
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
@@ -161,9 +224,35 @@ export default function JobsPage() {
 
       return true;
     });
-  }, [allJobs, filters]);
 
-  const handleApply = (jobId: string) => {
+    // Sort by match score if available and enabled
+    if (showMatchScores && jobMatches) {
+      jobs.sort((a, b) => {
+        const matchA = jobMatches.find(m => m.jobId === a.id);
+        const matchB = jobMatches.find(m => m.jobId === b.id);
+        const scoreA = matchA?.score || 0;
+        const scoreB = matchB?.score || 0;
+        return scoreB - scoreA; // Highest score first
+      });
+    }
+
+    return jobs;
+  }, [allJobs, filters, jobMatches, showMatchScores]);
+
+  const handleApply = async (jobId: string) => {
+    // Check if user is authenticated
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      // Redirect to login with return URL
+      const returnUrl = encodeURIComponent('/apps/learner/jobs');
+      window.location.href = `/apps/learner/auth/login?returnUrl=${returnUrl}`;
+      if (isMounted) {
+        announce('Anda harus login terlebih dahulu untuk melamar pekerjaan');
+      }
+      return;
+    }
+
     setAppliedJobs((prev) => new Set(prev).add(jobId));
     // Browser APIs are safe in event handlers (client-side only)
     if (typeof window !== 'undefined') {
@@ -187,6 +276,29 @@ export default function JobsPage() {
     if (job) {
       setSelectedJob(job);
       setIsDetailModalOpen(true);
+    }
+  };
+
+  const handleCompare = (jobId: string) => {
+    const job = allJobs.find((j) => j.id === jobId);
+    if (job) {
+      setComparisonJobs(prev => {
+        if (prev.find(j => j.id === jobId)) {
+          // Already in comparison, remove it
+          announce(`${job.title} dihapus dari perbandingan`);
+          return prev.filter(j => j.id !== jobId);
+        } else {
+          // Add to comparison (max 3 jobs)
+          if (prev.length >= 3) {
+            announce('Maksimal 3 pekerjaan dapat dibandingkan. Hapus salah satu pekerjaan terlebih dahulu.');
+            triggerHaptic('error');
+            return prev;
+          }
+          announce(`${job.title} ditambahkan ke perbandingan`);
+          triggerHaptic('confirmation');
+          return [...prev, job];
+        }
+      });
     }
   };
 
@@ -234,6 +346,8 @@ export default function JobsPage() {
             onApply={handleApply}
             onDismiss={handleDismiss}
             onViewDetails={handleViewDetails}
+            onCompare={handleCompare}
+            matchScores={jobMatches ? new Map(jobMatches.map(m => [m.jobId, m.score])) : undefined}
           />
         ) : (
           <div className="text-center py-12 border border-border rounded-lg bg-card">

@@ -14,6 +14,7 @@ import { announce, playAudioCue } from '@/lib/audio';
 import { triggerHaptic } from '@/lib/haptic';
 import { AccessibleInput } from '@/components/forms/AccessibleInput';
 import { AccessibleButton } from '@/components/ui/AccessibleButton';
+import { useFocusAnnouncement } from '@/hooks/useFocusAnnouncement';
 import { Eye, EyeOff, LogIn, Mail, Lock, UserPlus, ArrowLeft, KeyRound } from 'lucide-react';
 
 export default function LoginPage() {
@@ -27,6 +28,18 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const isMounted = useIsMounted();
+
+  // Get return URL from query params
+  useEffect(() => {
+    if (isMounted && typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const returnUrl = params.get('returnUrl');
+      if (returnUrl) {
+        // Store return URL for after login
+        sessionStorage.setItem('loginReturnUrl', returnUrl);
+      }
+    }
+  }, [isMounted]);
 
   useEffect(() => {
     if (isMounted) {
@@ -55,8 +68,16 @@ export default function LoginPage() {
       if (data.user) {
         triggerHaptic('apply-success');
         playAudioCue('apply-success');
-        announce('Login berhasil. Mengarahkan ke halaman utama...');
-        router.push('/apps/learner');
+        announce('Login berhasil. Mengarahkan...');
+        
+        // Check for return URL
+        const returnUrl = sessionStorage.getItem('loginReturnUrl');
+        if (returnUrl) {
+          sessionStorage.removeItem('loginReturnUrl');
+          router.push(decodeURIComponent(returnUrl));
+        } else {
+          router.push('/apps/learner');
+        }
         router.refresh();
       }
     } catch (err: any) {
@@ -139,11 +160,21 @@ export default function LoginPage() {
             }
           />
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full min-h-[48px] px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
+          {(() => {
+            const loginButtonProps = useFocusAnnouncement({
+              description: 'Tombol Masuk. Klik untuk masuk ke akun Anda dengan email dan kata sandi yang telah Anda masukkan.',
+              label: 'Tombol Masuk',
+              context: 'Tekan Enter untuk masuk ke akun',
+              announceOnFocus: true,
+              announceOnLongPress: true,
+            });
+            return (
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full min-h-[48px] px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                {...loginButtonProps}
+              >
             {loading ? (
               <>
                 <span className="animate-spin">⏳</span>
@@ -155,7 +186,9 @@ export default function LoginPage() {
                 <span>Masuk</span>
               </>
             )}
-          </button>
+              </button>
+            );
+          })()}
         </form>
 
         <div className="space-y-3">

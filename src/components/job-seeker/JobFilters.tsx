@@ -5,10 +5,11 @@
 
 'use client';
 
-import { useState } from 'react';
-import { Search, MapPin, DollarSign, Accessibility } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, MapPin, DollarSign, Accessibility, Mic, MicOff } from 'lucide-react';
 import { FocusAnnouncement } from '@/components/accessibility/FocusAnnouncement';
 import { useFocusAnnouncement } from '@/hooks/useFocusAnnouncement';
+import { useVoiceFilters } from '@/hooks/useVoiceFilters';
 import { cn } from '@/lib/utils';
 
 interface JobFiltersProps {
@@ -36,6 +37,19 @@ export function JobFilters({ onFilterChange, className }: JobFiltersProps) {
   });
 
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Voice filters integration
+  const {
+    isListening,
+    isSupported,
+    error: voiceError,
+    toggleListening,
+  } = useVoiceFilters(onFilterChange, filters);
+
+  // Sync filters when they change externally
+  useEffect(() => {
+    // This effect ensures filters are in sync
+  }, [filters]);
 
   const locations = [
     'Jakarta Pusat',
@@ -88,6 +102,56 @@ export function JobFilters({ onFilterChange, className }: JobFiltersProps) {
             </button>
           );
         })()}
+
+        {/* Voice Filter Button */}
+        {isSupported && (() => {
+          const voiceButtonProps = useFocusAnnouncement({
+            description: isListening
+              ? 'Mendengarkan perintah suara. Ucapkan perintah filter seperti "Tampilkan pekerjaan remote" atau "Tampilkan pekerjaan dengan aksesibilitas tinggi". Tekan lagi untuk berhenti.'
+              : 'Aktifkan filter suara. Tekan tombol ini dan ucapkan perintah filter seperti "Tampilkan pekerjaan remote" atau "Tampilkan pekerjaan di Jakarta".',
+            label: isListening ? 'Berhenti Mendengarkan' : 'Filter Suara',
+            context: isListening ? 'Tekan Enter untuk berhenti mendengarkan' : 'Tekan Enter untuk mulai mendengarkan perintah suara',
+            announceOnFocus: true,
+            announceOnLongPress: true,
+          });
+
+          return (
+            <button
+              onClick={toggleListening}
+              className={cn(
+                'px-4 py-2 text-sm border border-border rounded-lg transition-colors min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring flex items-center gap-2',
+                isListening
+                  ? 'bg-red-500/10 border-red-500 text-red-600 hover:bg-red-500/20'
+                  : 'bg-background hover:bg-muted'
+              )}
+              aria-pressed={isListening}
+              {...voiceButtonProps}
+            >
+              {isListening ? (
+                <>
+                  <MicOff className="w-4 h-4" />
+                  <span>Berhenti</span>
+                </>
+              ) : (
+                <>
+                  <Mic className="w-4 h-4" />
+                  <span>Filter Suara</span>
+                </>
+              )}
+            </button>
+          );
+        })()}
+
+        {/* Voice Error Message */}
+        {voiceError && (
+          <div
+            className="px-4 py-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg"
+            role="alert"
+            aria-live="polite"
+          >
+            {voiceError}
+          </div>
+        )}
       </div>
 
       {/* Expanded Filters */}
