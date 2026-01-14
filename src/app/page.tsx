@@ -9,12 +9,18 @@ export default function Home() {
   const isMounted = useIsMounted();
 
   useEffect(() => {
-    if (isMounted) {
-      // Announce that user is on the app
-      const timer = setTimeout(() => {
-        announce('Selamat datang di aplikasi Inklusif Kerja. Platform rekrutmen yang mudah diakses untuk Indonesia. Pilih portal yang ingin Anda akses: Portal Pencari Kerja, Portal Pemberi Kerja, atau Portal Pemerintah.');
-      }, 500);
+    if (isMounted && typeof window !== 'undefined') {
+      // Wait for speech synthesis to be ready
+      const announceWelcome = () => {
+        if ('speechSynthesis' in window) {
+          announce('Selamat datang di aplikasi Inklusif Kerja. Platform rekrutmen yang mudah diakses untuk Indonesia. Pilih portal yang ingin Anda akses: Portal Pencari Kerja, Portal Pemberi Kerja, atau Portal Pemerintah.');
+        } else {
+          // Retry after a short delay if not ready
+          setTimeout(announceWelcome, 200);
+        }
+      };
 
+      const timer = setTimeout(announceWelcome, 800);
       return () => clearTimeout(timer);
     }
   }, [isMounted]);

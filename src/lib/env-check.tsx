@@ -6,7 +6,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AlertCircle, CheckCircle2 } from 'lucide-react';
+import { AlertCircle, CheckCircle2, X } from 'lucide-react';
 import { useIsMounted } from '@/lib/hooks/useIsMounted';
 
 function WarningNotification({ warnings }: { warnings: string[] }) {
@@ -39,6 +39,56 @@ function WarningNotification({ warnings }: { warnings: string[] }) {
           <li key={key} className="font-mono">{key}</li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+function SuccessNotification() {
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    // Auto-dismiss after 1 second
+    const timer = setTimeout(() => {
+      setIsVisible(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!isVisible) return null;
+
+  return (
+    <div 
+      className="mb-2 p-3 bg-green-500/10 border border-green-500 rounded-lg cursor-pointer hover:bg-green-500/20 transition-colors"
+      onClick={() => setIsVisible(false)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setIsVisible(false);
+        }
+      }}
+      aria-label="Tutup notifikasi koneksi Supabase"
+    >
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="w-5 h-5 text-green-500" />
+          <p className="text-sm text-green-500 font-medium">
+            Supabase terhubung dengan baik
+          </p>
+        </div>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsVisible(false);
+          }}
+          className="p-1 rounded hover:bg-green-500/20 transition-colors min-w-[24px] min-h-[24px] flex items-center justify-center"
+          aria-label="Tutup"
+        >
+          <X className="w-4 h-4 text-green-500" />
+        </button>
+      </div>
     </div>
   );
 }
@@ -139,16 +189,9 @@ export function EnvCheck() {
 
   return (
     <div className="fixed bottom-4 right-4 max-w-md z-50">
-      {/* Success indicator if connected */}
+      {/* Success indicator if connected - Auto-dismiss after 1 second or clickable to close */}
       {isConnected === true && missing.length === 0 && (
-        <div className="mb-2 p-3 bg-green-500/10 border border-green-500 rounded-lg">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-green-500" />
-            <p className="text-sm text-green-500 font-medium">
-              Supabase terhubung dengan baik
-            </p>
-          </div>
-        </div>
+        <SuccessNotification />
       )}
       {missing.length > 0 && (
         <div className="mb-2 p-4 bg-destructive/10 border border-destructive rounded-lg">

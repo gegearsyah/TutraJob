@@ -16,7 +16,7 @@ import { ApplicationCard } from '@/components/accessibility/ApplicationCard';
 import { StatisticsCards } from '@/components/accessibility/StatisticsCards';
 import { announce } from '@/lib/audio';
 import { CheckCircle2, Clock, XCircle, Calendar, Building2 } from 'lucide-react';
-import type { Application, ApplicationStatus } from '@/types/application';
+import type { Application, ApplicationStatus, ApplicationStatusUpdate } from '@/types/application';
 
 const statusConfig: Record<
   ApplicationStatus,
@@ -54,6 +54,7 @@ export default function ApplicationsPage() {
   usePageAnnouncement('Lamaran Saya', 'Lacak status lamaran pekerjaan Anda');
 
   const [applications, setApplications] = useState<Application[]>([]);
+  const [statusHistoryMap, setStatusHistoryMap] = useState<Record<string, ApplicationStatusUpdate[]>>({});
   const [loading, setLoading] = useState(true);
   const isMounted = useIsMounted();
 
@@ -91,7 +92,31 @@ export default function ApplicationsPage() {
           },
         ];
 
+        // Mock status history data
+        const mockStatusHistory: Record<string, ApplicationStatusUpdate[]> = {
+          '1': [
+            {
+              status: 'applied',
+              updatedAt: new Date('2024-01-15T10:00:00'),
+              message: 'Lamaran berhasil dikirim',
+            },
+            {
+              status: 'under-review',
+              updatedAt: new Date('2024-01-16T14:30:00'),
+              message: 'Lamaran sedang ditinjau oleh tim HR',
+            },
+          ],
+          '2': [
+            {
+              status: 'applied',
+              updatedAt: new Date('2024-01-20T09:15:00'),
+              message: 'Lamaran berhasil dikirim',
+            },
+          ],
+        };
+
         setApplications(mockApplications);
+        setStatusHistoryMap(mockStatusHistory);
       } catch (error) {
         console.error('Error loading applications:', error);
         if (isMounted) {
@@ -172,6 +197,7 @@ export default function ApplicationsPage() {
                 companyName="PT Teknologi Indonesia"
                 statusConfig={statusConfig}
                 formatDate={formatDate}
+                statusHistory={statusHistoryMap[application.id] || []}
               />
             ))}
           </div>

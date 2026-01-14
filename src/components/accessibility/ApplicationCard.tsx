@@ -5,11 +5,14 @@
 
 'use client';
 
+import { useState } from 'react';
 import { useFocusAnnouncement } from '@/hooks/useFocusAnnouncement';
 import { AnnounceableText } from './AnnounceableText';
 import { FocusAnnouncement } from './FocusAnnouncement';
-import { CheckCircle2, Clock, XCircle, Calendar, Building2 } from 'lucide-react';
-import type { Application, ApplicationStatus } from '@/types/application';
+import { ApplicationStatusHistory } from '@/components/job-seeker/ApplicationStatusHistory';
+import { CheckCircle2, Clock, XCircle, Calendar, Building2, ChevronDown, ChevronUp } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import type { Application, ApplicationStatus, ApplicationStatusUpdate } from '@/types/application';
 
 interface ApplicationCardProps {
   application: Application;
@@ -20,6 +23,7 @@ interface ApplicationCardProps {
     { label: string; icon: React.ReactNode; color: string }
   >;
   formatDate: (date: Date) => string;
+  statusHistory?: ApplicationStatusUpdate[];
 }
 
 export function ApplicationCard({
@@ -28,7 +32,9 @@ export function ApplicationCard({
   companyName = 'PT Teknologi Indonesia',
   statusConfig,
   formatDate,
+  statusHistory = [],
 }: ApplicationCardProps) {
+  const [showHistory, setShowHistory] = useState(false);
   const statusInfo = statusConfig[application.status] || statusConfig.applied;
 
   const cardProps = useFocusAnnouncement({
@@ -109,6 +115,35 @@ export function ApplicationCard({
           <span className="font-medium">{statusInfo.label}</span>
         </div>
       </div>
+
+      {/* Status History Toggle */}
+      {statusHistory.length > 0 && (
+        <div className="mt-4 pt-4 border-t border-border">
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className="w-full flex items-center justify-between p-2 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+            aria-expanded={showHistory}
+            aria-label={showHistory ? 'Sembunyikan riwayat status' : 'Tampilkan riwayat status'}
+          >
+            <span>Riwayat Status ({statusHistory.length})</span>
+            {showHistory ? (
+              <ChevronUp className="w-4 h-4" aria-hidden="true" />
+            ) : (
+              <ChevronDown className="w-4 h-4" aria-hidden="true" />
+            )}
+          </button>
+
+          {showHistory && (
+            <div className="mt-4">
+              <ApplicationStatusHistory
+                applicationId={application.id}
+                currentStatus={application.status}
+                statusHistory={statusHistory}
+              />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
