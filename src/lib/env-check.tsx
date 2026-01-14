@@ -9,6 +9,40 @@ import { useEffect, useState } from 'react';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useIsMounted } from '@/lib/hooks/useIsMounted';
 
+function WarningNotification({ warnings }: { warnings: string[] }) {
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    // Auto-dismiss after 0.5 seconds for recommended env vars only
+    const timer = setTimeout(() => {
+      setIsVisible(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!isVisible) return null;
+
+  return (
+    <div className="p-4 bg-warning/10 border border-warning rounded-lg">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <AlertCircle className="w-5 h-5 text-warning" />
+          <h3 className="font-semibold text-warning">Peringatan</h3>
+        </div>
+      </div>
+      <p className="text-sm text-muted-foreground mb-2">
+        Variabel berikut direkomendasikan:
+      </p>
+      <ul className="text-sm text-warning list-disc list-inside">
+        {warnings.map((key) => (
+          <li key={key} className="font-mono">{key}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function EnvCheck() {
   const [missing, setMissing] = useState<string[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
@@ -154,24 +188,7 @@ export function EnvCheck() {
         </div>
       )}
 
-      {warnings.length > 0 && (
-        <div className="p-4 bg-warning/10 border border-warning rounded-lg">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-warning" />
-              <h3 className="font-semibold text-warning">Peringatan</h3>
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground mb-2">
-            Variabel berikut direkomendasikan:
-          </p>
-          <ul className="text-sm text-warning list-disc list-inside">
-            {warnings.map((key) => (
-              <li key={key} className="font-mono">{key}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {warnings.length > 0 && <WarningNotification warnings={warnings} />}
     </div>
   );
 }

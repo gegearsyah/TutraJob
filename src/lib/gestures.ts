@@ -55,6 +55,19 @@ export class GestureDetector {
       clearTimeout(this.longPressTimer);
       this.longPressTimer = null;
     }
+
+    // Only prevent default if we detect horizontal movement (likely a swipe gesture)
+    if (this.startTime > 0 && 'touches' in e && e.touches.length === 1) {
+      const point = this.getPoint(e);
+      const deltaX = Math.abs(point.x - this.startX);
+      const deltaY = Math.abs(point.y - this.startY);
+      
+      // If horizontal movement is significantly more than vertical, it's likely a swipe
+      // Only prevent default for horizontal swipes to allow vertical scrolling
+      if (deltaX > 20 && deltaX > deltaY * 1.5) {
+        e.preventDefault();
+      }
+    }
   };
 
   handleTouchEnd = (e: React.TouchEvent | React.MouseEvent): void => {
@@ -73,6 +86,14 @@ export class GestureDetector {
     const deltaY = endY - this.startY;
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     const duration = endTime - this.startTime;
+
+    // Only prevent default if we detected a horizontal swipe
+    // This allows vertical scrolling to work normally
+    if (distance > 20 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+      if ('preventDefault' in e) {
+        e.preventDefault();
+      }
+    }
 
     // Check for double tap
     const currentTime = Date.now();
@@ -93,11 +114,21 @@ export class GestureDetector {
     this.lastTapTime = currentTime;
 
     // Check if it's a swipe gesture
-    if (distance < this.config.minSwipeDistance) {
+    // Lower threshold for mobile to make it more sensitive
+    const minDistance = typeof window !== 'undefined' && 'ontouchstart' in window 
+      ? this.config.minSwipeDistance * 0.7 // 30% lower threshold on mobile
+      : this.config.minSwipeDistance;
+    
+    if (distance < minDistance) {
       return; // Not a swipe
     }
 
-    if (duration > this.config.maxSwipeTime) {
+    // More lenient time threshold on mobile
+    const maxTime = typeof window !== 'undefined' && 'ontouchstart' in window
+      ? this.config.maxSwipeTime * 1.5 // 50% more time on mobile
+      : this.config.maxSwipeTime;
+
+    if (duration > maxTime) {
       return; // Too slow
     }
 
@@ -139,12 +170,24 @@ export class GestureDetector {
   private getPoint(
     e: React.TouchEvent | React.MouseEvent
   ): { x: number; y: number } {
-    if ('touches' in e && e.touches.length > 0) {
-      return {
-        x: e.touches[0].clientX,
-        y: e.touches[0].clientY,
-      };
+    // For touch events, use changedTouches (for touchEnd) or touches (for touchStart/Move)
+    if ('touches' in e) {
+      // Touch event
+      if (e.type === 'touchend' && 'changedTouches' in e && e.changedTouches.length > 0) {
+        // Use changedTouches for touchEnd (more reliable on mobile)
+        return {
+          x: e.changedTouches[0].clientX,
+          y: e.changedTouches[0].clientY,
+        };
+      } else if (e.touches.length > 0) {
+        // Use touches for touchStart/Move
+        return {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+        };
+      }
     } else if ('clientX' in e) {
+      // Mouse event
       return {
         x: e.clientX,
         y: e.clientY,
@@ -167,6 +210,7 @@ export function useGestureDetection(handlers: GestureHandlers) {
   const detector = new GestureDetector(handlers);
 
   // Return only event handlers (not cleanup function)
+  // Use passive: false for touch events to allow preventDefault when needed
   return {
     onTouchStart: detector.handleTouchStart,
     onTouchMove: detector.handleTouchMove,

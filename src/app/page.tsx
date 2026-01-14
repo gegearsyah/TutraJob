@@ -1,6 +1,24 @@
+'use client';
+
+import { useEffect } from 'react';
 import Link from "next/link";
+import { useIsMounted } from '@/lib/hooks/useIsMounted';
+import { announce } from '@/lib/audio';
 
 export default function Home() {
+  const isMounted = useIsMounted();
+
+  useEffect(() => {
+    if (isMounted) {
+      // Announce that user is on the app
+      const timer = setTimeout(() => {
+        announce('Selamat datang di aplikasi Inklusif Kerja. Platform rekrutmen yang mudah diakses untuk Indonesia. Pilih portal yang ingin Anda akses: Portal Pencari Kerja, Portal Pemberi Kerja, atau Portal Pemerintah.');
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isMounted]);
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-8">
       <div className="text-center space-y-6">

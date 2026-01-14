@@ -20,6 +20,17 @@ export default function LearnerPage() {
   const isMounted = useIsMounted();
 
   useEffect(() => {
+    if (isMounted) {
+      // Announce that user is already on the app
+      const timer = setTimeout(() => {
+        announce('Anda sudah berada di aplikasi Portal Pencari Kerja. Di halaman ini, Anda dapat mengakses menu Cari Pekerjaan, Riwayat Lamaran, Pekerjaan Tersimpan, dan Lengkapi Profil.');
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isMounted]);
+
+  useEffect(() => {
     // Show tutorial automatically for first-time users
     if (isMounted && !hasCompleted && typeof window !== 'undefined') {
       const hasSeenWelcome = sessionStorage.getItem('learner_welcome_shown');

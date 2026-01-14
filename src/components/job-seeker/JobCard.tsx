@@ -137,22 +137,23 @@ export function JobCard({
   }, [job.summary, isMounted]);
 
   return (
-    <article
-      role="article"
-      aria-label={`Kartu pekerjaan: ${job.title} di ${job.company}`}
-      aria-describedby={`job-summary-${job.id}`}
-      tabIndex={0}
-      className={cn(
-        'relative w-full max-w-md mx-auto bg-card border border-border rounded-lg p-6',
-        'shadow-card hover:shadow-card-hover transition-all duration-300',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-        // Only apply swipe styles on client to prevent hydration mismatch
-        isMounted && isSwiping === 'right' && 'translate-x-20 opacity-50 bg-green-500/10',
-        isMounted && isSwiping === 'left' && '-translate-x-20 opacity-50 bg-red-500/10',
-        className
-      )}
-      {...gestureHandlers}
-      {...cardAnnouncementProps}
+        <article
+          role="article"
+          aria-label={`Kartu pekerjaan: ${job.title} di ${job.company}`}
+          aria-describedby={`job-summary-${job.id}`}
+          tabIndex={0}
+          className={cn(
+            'relative w-full max-w-md mx-auto bg-card border border-border rounded-lg p-6',
+            'shadow-card hover:shadow-card-hover transition-all duration-300',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            // Only apply swipe styles on client to prevent hydration mismatch
+            isMounted && isSwiping === 'right' && 'translate-x-20 opacity-50 bg-green-500/10',
+            isMounted && isSwiping === 'left' && '-translate-x-20 opacity-50 bg-red-500/10',
+            className
+          )}
+          {...gestureHandlers}
+          style={{ touchAction: 'pan-y pinch-zoom' }} // Allow vertical scrolling and pinch zoom, but enable horizontal gestures
+          {...cardAnnouncementProps}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
