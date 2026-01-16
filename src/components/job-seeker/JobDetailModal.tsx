@@ -25,6 +25,31 @@ interface JobDetailModalProps {
 export function JobDetailModal({ job, isOpen, onClose, onApply }: JobDetailModalProps) {
   const isMounted = useIsMounted();
 
+  // Always call hooks at the top level - never conditionally
+  const closeButtonProps = useFocusAnnouncement({
+    description: 'Tutup modal detail pekerjaan dan kembali ke halaman sebelumnya',
+    label: 'Tombol Tutup',
+    context: 'Tekan Enter untuk menutup modal',
+    announceOnFocus: true,
+    announceOnLongPress: true,
+  });
+
+  const externalLinkProps = useFocusAnnouncement({
+    description: `Buka halaman lamaran di situs asli perusahaan. Link ini akan membuka di tab baru.`,
+    label: 'Buka di Situs Asli',
+    context: 'Tekan Enter untuk membuka link eksternal',
+    announceOnFocus: true,
+    announceOnLongPress: true,
+  });
+
+  const applyButtonProps = useFocusAnnouncement({
+    description: job ? `Melamar untuk posisi ${job.title} di ${job.company}. Setelah melamar, Anda akan menerima konfirmasi dan pekerjaan akan muncul di halaman Lamaran.` : 'Melamar pekerjaan ini',
+    label: 'Lamar Sekarang',
+    context: 'Tekan Enter untuk melamar pekerjaan ini',
+    announceOnFocus: true,
+    announceOnLongPress: true,
+  });
+
   useEffect(() => {
     if (isOpen && job && isMounted) {
       announce(`Detail lengkap pekerjaan: ${job.title} di ${job.company}`);
@@ -78,26 +103,14 @@ export function JobDetailModal({ job, isOpen, onClose, onApply }: JobDetailModal
             </h2>
             <p className="text-lg text-muted-foreground">{job.company}</p>
           </div>
-          {(() => {
-            const closeButtonProps = useFocusAnnouncement({
-              description: 'Tutup modal detail pekerjaan dan kembali ke halaman sebelumnya',
-              label: 'Tombol Tutup',
-              context: 'Tekan Enter untuk menutup modal',
-              announceOnFocus: true,
-              announceOnLongPress: true,
-            });
-
-            return (
-              <button
-                onClick={onClose}
-                className="min-w-[48px] min-h-[48px] p-2 hover:bg-muted rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                aria-label="Tutup detail pekerjaan"
-                {...closeButtonProps}
-              >
-                <X className="w-6 h-6" aria-hidden="true" />
-              </button>
-            );
-          })()}
+          <button
+            onClick={onClose}
+            className="min-w-[48px] min-h-[48px] p-2 hover:bg-muted rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label="Tutup detail pekerjaan"
+            {...closeButtonProps}
+          >
+            <X className="w-6 h-6" aria-hidden="true" />
+          </button>
         </div>
 
         {/* Content - Scrollable */}
@@ -253,54 +266,32 @@ export function JobDetailModal({ job, isOpen, onClose, onApply }: JobDetailModal
 
         {/* Footer Actions */}
         <div className="flex items-center justify-between p-6 border-t border-border gap-4">
-          {(() => {
-            const externalLinkProps = useFocusAnnouncement({
-              description: `Buka halaman lamaran di situs asli perusahaan. Link ini akan membuka di tab baru.`,
-              label: 'Buka di Situs Asli',
-              context: 'Tekan Enter untuk membuka link eksternal',
-              announceOnFocus: true,
-              announceOnLongPress: true,
-            });
-
-            const applyButtonProps = useFocusAnnouncement({
-              description: `Melamar untuk posisi ${job.title} di ${job.company}. Setelah melamar, Anda akan menerima konfirmasi dan pekerjaan akan muncul di halaman Lamaran.`,
-              label: 'Lamar Sekarang',
-              context: 'Tekan Enter untuk melamar pekerjaan ini',
-              announceOnFocus: true,
-              announceOnLongPress: true,
-            });
-
-            return (
-              <>
-                <FocusAnnouncement
-                  description="Buka halaman lamaran di situs asli perusahaan. Link ini akan membuka di tab baru browser Anda."
-                  label="Link Eksternal"
-                >
-                  <a
-                    href={job.applicationUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 text-primary hover:bg-primary/10 rounded-lg transition-colors min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    {...externalLinkProps}
-                  >
-                    <ExternalLink className="w-5 h-5" aria-hidden="true" />
-                    <span>Buka di situs asli</span>
-                  </a>
-                </FocusAnnouncement>
-                <button
-                  onClick={() => {
-                    onApply(job.id);
-                    onClose();
-                  }}
-                  className="flex-1 min-h-[48px] px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  {...applyButtonProps}
-                >
-                  <CheckCircle className="w-5 h-5" aria-hidden="true" />
-                  <span>Lamar Sekarang</span>
-                </button>
-              </>
-            );
-          })()}
+          <FocusAnnouncement
+            description="Buka halaman lamaran di situs asli perusahaan. Link ini akan membuka di tab baru browser Anda."
+            label="Link Eksternal"
+          >
+            <a
+              href={job.applicationUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 text-primary hover:bg-primary/10 rounded-lg transition-colors min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              {...externalLinkProps}
+            >
+              <ExternalLink className="w-5 h-5" aria-hidden="true" />
+              <span>Buka di situs asli</span>
+            </a>
+          </FocusAnnouncement>
+          <button
+            onClick={() => {
+              onApply(job.id);
+              onClose();
+            }}
+            className="flex-1 min-h-[48px] px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            {...applyButtonProps}
+          >
+            <CheckCircle className="w-5 h-5" aria-hidden="true" />
+            <span>Lamar Sekarang</span>
+          </button>
         </div>
       </div>
     </div>

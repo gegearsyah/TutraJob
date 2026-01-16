@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { ProfileForm } from '@/components/job-seeker/ProfileForm';
 import { TutorialButton } from '@/components/tutorial/TutorialButton';
 import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay';
+import { VoiceSettings } from '@/components/settings/VoiceSettings';
 import { useTutorial } from '@/hooks/useTutorial';
 import { learnerTutorialSteps } from '@/lib/tutorials/learner-tutorial';
 import { usePageAnnouncement } from '@/hooks/usePageAnnouncement';
@@ -203,6 +204,11 @@ export default function ProfilePage() {
         </header>
 
         <ProfileForm userId={userId} onSubmit={handleSubmit} />
+
+        {/* Voice Settings */}
+        <div className="mt-8">
+          <VoiceSettings />
+        </div>
       </div>
 
       {/* Tutorial Overlay */}

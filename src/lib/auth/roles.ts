@@ -5,7 +5,7 @@
 
 import { supabase } from '@/lib/supabase/client';
 
-export type UserRole = 'learner' | 'employer' | 'gov';
+export type UserRole = 'learner' | 'employer' | 'gov' | 'admin';
 
 /**
  * Get user role from auth metadata
@@ -19,8 +19,13 @@ export async function getUserRole(): Promise<UserRole | null> {
     // Check user metadata for role
     const userType = user.user_metadata?.user_type as string;
     
-    if (userType === 'learner' || userType === 'employer' || userType === 'gov') {
+    if (userType === 'learner' || userType === 'employer' || userType === 'gov' || userType === 'admin') {
       return userType as UserRole;
+    }
+
+    // Check if user email is admin (for development)
+    if (user.email?.endsWith('@admin.inklusifkerja.id') || user.email?.includes('admin@')) {
+      return 'admin';
     }
 
     // Default to learner if no role specified

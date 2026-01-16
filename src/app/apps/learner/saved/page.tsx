@@ -12,6 +12,7 @@ import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { JobCard } from '@/components/job-seeker/JobCard';
 import { AccessibleButton } from '@/components/ui/AccessibleButton';
 import { SavedJobCard } from '@/components/accessibility/SavedJobCard';
+import { JobDetailModal } from '@/components/job-seeker/JobDetailModal';
 import { FocusAnnouncement } from '@/components/accessibility/FocusAnnouncement';
 import { AnnounceableText } from '@/components/accessibility/AnnounceableText';
 import { announce } from '@/lib/audio';
@@ -59,6 +60,9 @@ const mockSavedJobs: JobListing[] = [
 ];
 
 export default function SavedJobsPage() {
+  // Always call hooks at the top level - never conditionally
+  const isMounted = useIsMounted();
+  
   // Announce page on load and stop previous announcements
   usePageAnnouncement('Pekerjaan Tersimpan', 'Lihat pekerjaan yang telah Anda simpan');
 
@@ -69,28 +73,15 @@ export default function SavedJobsPage() {
   });
 
   const [savedJobs, setSavedJobs] = useState<JobListing[]>(mockSavedJobs);
-  const isMounted = useIsMounted();
-
-  // Show loading or redirect if not authenticated
-  if (authLoading) {
-    return (
-      <div className="container py-8">
-        <div className="text-center">
-          <p className="text-muted-foreground">Memverifikasi autentikasi...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return null; // Will redirect via useAuthGuard
-  }
+  const [selectedJob, setSelectedJob] = useState<JobListing | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   useEffect(() => {
-    if (isMounted && savedJobs.length > 0) {
+    if (isMounted && savedJobs.length > 0 && isAuthenticated && !authLoading) {
+      // Only announce when authenticated and not loading
       announce(`Anda memiliki ${savedJobs.length} pekerjaan yang disimpan`);
     }
-  }, [isMounted, savedJobs.length]);
+  }, [isMounted, savedJobs.length, isAuthenticated, authLoading]);
 
   const handleRemove = (jobId: string) => {
     setSavedJobs((prev) => prev.filter((job) => job.id !== jobId));
@@ -127,9 +118,44 @@ export default function SavedJobsPage() {
   };
 
   const handleViewDetails = (jobId: string) => {
-    // TODO: Navigate to detail page
-    console.log('View details for job:', jobId);
+    const job = savedJobs.find((j) => j.id === jobId);
+    if (job) {
+      setSelectedJob(job);
+      setIsDetailModalOpen(true);
+      if (isMounted) {
+        triggerHaptic('confirmation');
+        announce(`Membuka detail lengkap pekerjaan: ${job.title} di ${job.company}`);
+      }
+    }
   };
+
+  const handleCloseDetailModal = () => {
+    setIsDetailModalOpen(false);
+    setSelectedJob(null);
+    if (isMounted) {
+      announce('Modal detail ditutup');
+    }
+  };
+
+  const handleApplyFromModal = (jobId: string) => {
+    handleApply(jobId);
+    handleCloseDetailModal();
+  };
+
+  // Show loading or redirect if not authenticated
+  if (authLoading) {
+    return (
+      <div className="container py-8">
+        <div className="text-center">
+          <p className="text-muted-foreground">Memverifikasi autentikasi...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null; // Will redirect via useAuthGuard
+  }
 
   return (
     <div className="container py-8">
@@ -195,6 +221,14 @@ export default function SavedJobsPage() {
           </div>
         )}
       </div>
+
+      {/* Job Detail Modal */}
+      <JobDetailModal
+        job={selectedJob}
+        isOpen={isDetailModalOpen}
+        onClose={handleCloseDetailModal}
+        onApply={handleApplyFromModal}
+      />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { EnvCheck } from "@/lib/env-check";
+import { VoicePreloader } from "@/components/audio/VoicePreloader";
 import { logEnvValidation } from "@/lib/env";
 import "./globals.css";
 
@@ -45,6 +46,7 @@ export default function RootLayout({
           enableSystem={true}
           disableTransitionOnChange
         >
+          <VoicePreloader />
           {children}
           <EnvCheck />
         </ThemeProvider>
