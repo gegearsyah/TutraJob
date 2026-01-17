@@ -152,7 +152,7 @@ Interval: 12 jam
 ### 1. Manual Scraping (Sekarang)
 
 Saat ini, scraping dilakukan secara manual melalui:
-- **Halaman Ekstraksi Pekerjaan** (`/apps/admin/job-extraction`)
+- **Halaman Ekstraksi Pekerjaan** (``/apps/admin/job-extraction``)
 - Admin memasukkan URL pekerjaan secara manual
 - Sistem mengekstrak detail pekerjaan
 

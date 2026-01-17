@@ -15,13 +15,13 @@
 -- Method 2: Update existing user menjadi admin
 -- Jika Anda sudah punya user, jalankan query ini untuk mengubahnya menjadi admin:
 
--- UPDATE auth.users
--- SET raw_user_meta_data = jsonb_set(
---   COALESCE(raw_user_meta_data, '{}'::jsonb),
---   '{user_type}',
---   '"admin"'
--- )
--- WHERE email = 'admin@inklusifkerja.id';
+UPDATE auth.users
+SET raw_user_meta_data = jsonb_set(
+  COALESCE(raw_user_meta_data, '{}'::jsonb),
+  '{user_type}',
+  '"admin"'
+)
+WHERE email = 'admin@inklusifkerja.id';
 
 -- Method 3: Check existing admin users
 -- Query untuk melihat semua user admin:
