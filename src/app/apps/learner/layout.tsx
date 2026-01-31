@@ -3,6 +3,7 @@ import { NotificationCenter } from "@/components/notifications/NotificationCente
 import { AnnouncementControl } from "@/components/accessibility/AnnouncementControl";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { FocusAnnouncement } from "@/components/accessibility/FocusAnnouncement";
+import { MobileBottomNav } from "@/components/navigation/MobileBottomNav";
 import Link from "next/link";
 import { Home, Briefcase, User, Bookmark, FileText } from "lucide-react";
 
@@ -102,7 +103,8 @@ export default function LearnerLayout({
           </div>
         </div>
       </header>
-      <main>{children}</main>
+      <main className="pb-20 md:pb-8">{children}</main>
+      <MobileBottomNav />
       <AnnouncementControl variant="floating" />
     </div>
   );

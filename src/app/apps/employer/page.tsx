@@ -57,13 +57,36 @@ export default function EmployerPage() {
               Monitor kuota wajib UU No. 8/2016
             </p>
           </Link>
-          <div className="p-6 rounded-lg border border-border bg-card">
+          <Link
+            href="/apps/employer/profile"
+            className="p-6 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors"
+          >
+            <Users className="w-8 h-8 text-primary mb-3" />
+            <h3 className="text-xl font-semibold mb-2">Profil Perusahaan</h3>
+            <p className="text-sm text-muted-foreground">
+              Kelola informasi dan kepatuhan perusahaan
+            </p>
+          </Link>
+          <Link
+            href="/apps/employer/compliance/info"
+            className="p-6 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors"
+          >
+            <FileText className="w-8 h-8 text-primary mb-3" />
+            <h3 className="text-xl font-semibold mb-2">Informasi Kepatuhan</h3>
+            <p className="text-sm text-muted-foreground">
+              Pelajari tentang peraturan dan sistem
+            </p>
+          </Link>
+          <Link
+            href="/apps/employer/jobs/post"
+            className="p-6 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors"
+          >
             <Briefcase className="w-8 h-8 text-primary mb-3" />
             <h3 className="text-xl font-semibold mb-2">Posting Lowongan</h3>
             <p className="text-sm text-muted-foreground">
               Buat lowongan pekerjaan yang aksesibel
             </p>
-          </div>
+          </Link>
           <div className="p-6 rounded-lg border border-border bg-card">
             <Users className="w-8 h-8 text-primary mb-3" />
             <h3 className="text-xl font-semibold mb-2">Tinjau Kandidat</h3>

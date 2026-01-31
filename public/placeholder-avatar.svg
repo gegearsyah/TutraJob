@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" role="img" aria-label="Placeholder avatar">
+  <rect width="200" height="200" rx="100" fill="#e2e8f0" />
+  <circle cx="100" cy="80" r="36" fill="#cbd5f5" />
+  <path d="M40 170c16-32 40-48 60-48s44 16 60 48" fill="#cbd5f5" />
+  <text x="100" y="190" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#64748b">Avatar</text>
+</svg>

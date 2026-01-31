@@ -14,14 +14,12 @@ import { announce, playAudioCue } from '@/lib/audio';
 import { useIsMounted } from '@/lib/hooks/useIsMounted';
 import { useFocusAnnouncement } from '@/hooks/useFocusAnnouncement';
 import { cn } from '@/lib/utils';
-import { GitCompare } from 'lucide-react';
 
 interface JobCardProps {
   job: JobListing;
   onApply: (jobId: string) => void;
   onDismiss: (jobId: string) => void;
   onViewDetails: (jobId: string) => void;
-  onCompare?: (jobId: string) => void; // Optional compare handler
   className?: string;
   matchScore?: number; // Optional match score (0-100)
 }
@@ -31,7 +29,6 @@ export function JobCard({
   onApply,
   onDismiss,
   onViewDetails,
-  onCompare,
   className,
   matchScore,
 }: JobCardProps) {
@@ -148,12 +145,12 @@ export function JobCard({
           aria-describedby={`job-summary-${job.id}`}
           tabIndex={0}
           className={cn(
-            'relative w-full max-w-md mx-auto bg-card border border-border rounded-lg p-6',
+            'relative w-full max-w-md mx-auto bg-card border border-border rounded-lg p-6 overflow-hidden',
             'shadow-card hover:shadow-card-hover transition-all duration-300',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
             // Only apply swipe styles on client to prevent hydration mismatch
-            isMounted && isSwiping === 'right' && 'translate-x-20 opacity-50 bg-green-500/10',
-            isMounted && isSwiping === 'left' && '-translate-x-20 opacity-50 bg-red-500/10',
+            isMounted && isSwiping === 'right' && 'translate-x-20 rotate-3 opacity-50 bg-green-500/10 border-green-500/30',
+            isMounted && isSwiping === 'left' && '-translate-x-20 -rotate-3 opacity-50 bg-red-500/10 border-red-500/30',
             className
           )}
           {...gestureHandlers}
@@ -170,12 +167,36 @@ export function JobCard({
         } else if (e.key === 'd' || e.key === 'D') {
           e.preventDefault();
           onDismiss(job.id);
-        } else if ((e.key === 'c' || e.key === 'C') && onCompare) {
-          e.preventDefault();
-          onCompare(job.id);
         }
       }}
     >
+      {/* Swipe Indicators - Visual hints for first-time users */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Left swipe indicator (Dismiss) */}
+        <div
+          className={cn(
+            'absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-red-500/20 to-transparent flex items-center justify-center',
+            'transition-opacity duration-300',
+            isSwiping === 'left' ? 'opacity-100' : 'opacity-0'
+          )}
+          aria-hidden="true"
+        >
+          <span className="text-4xl">✕</span>
+        </div>
+        
+        {/* Right swipe indicator (Apply) */}
+        <div
+          className={cn(
+            'absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-green-500/20 to-transparent flex items-center justify-center',
+            'transition-opacity duration-300',
+            isSwiping === 'right' ? 'opacity-100' : 'opacity-0'
+          )}
+          aria-hidden="true"
+        >
+          <span className="text-4xl">✓</span>
+        </div>
+      </div>
+
       {/* Header */}
       <header className="mb-4">
         <h2
@@ -297,21 +318,6 @@ export function JobCard({
         >
           Lamar
         </button>
-        {onCompare && (
-          <button
-            onClick={() => {
-              onCompare(job.id);
-              triggerHaptic('confirmation');
-              announce(`Menambahkan ${job.title} ke perbandingan`);
-            }}
-            className="min-h-[48px] px-4 py-3 border border-border rounded-lg hover:bg-muted transition-colors flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            aria-label={`Bandingkan ${job.title} dengan pekerjaan lain`}
-          >
-            <GitCompare className="w-4 h-4" />
-            <span className="hidden sm:inline">Bandingkan</span>
-            <span className="sm:hidden">Banding</span>
-          </button>
-        )}
         <button
           onClick={() => {
             triggerHaptic('dismiss');

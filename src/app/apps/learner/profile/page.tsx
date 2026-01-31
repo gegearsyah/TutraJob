@@ -12,7 +12,7 @@ import { TutorialButton } from '@/components/tutorial/TutorialButton';
 import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay';
 import { VoiceSettings } from '@/components/settings/VoiceSettings';
 import { useTutorial } from '@/hooks/useTutorial';
-import { learnerTutorialSteps } from '@/lib/tutorials/learner-tutorial';
+import { learnerProfileTutorialSteps } from '@/lib/tutorials/learner-profile-tutorial';
 import { usePageAnnouncement } from '@/hooks/usePageAnnouncement';
 import type { ProfileFormData } from '@/lib/validations/profile';
 import { supabase } from '@/lib/supabase/client';
@@ -213,9 +213,7 @@ export default function ProfilePage() {
 
       {/* Tutorial Overlay */}
       <TutorialOverlay
-        steps={learnerTutorialSteps.filter((step) => 
-          ['profile-setup', 'complete'].includes(step.id)
-        )}
+        steps={learnerProfileTutorialSteps}
         isOpen={isOpen}
         onClose={closeTutorial}
         onComplete={completeTutorial}

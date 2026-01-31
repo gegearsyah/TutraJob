@@ -13,6 +13,7 @@ import { announce, playAudioCue } from '@/lib/audio';
 import { triggerHaptic } from '@/lib/haptic';
 import { AccessibleInput } from '@/components/forms/AccessibleInput';
 import { AccessibleButton } from '@/components/ui/AccessibleButton';
+import { ConsentForm } from '@/components/forms/ConsentForm';
 import { Eye, EyeOff, UserPlus, Mail, Lock, Building2, User, LogIn, ArrowLeft } from 'lucide-react';
 
 export default function EmployerSignupPage() {
@@ -25,6 +26,7 @@ export default function EmployerSignupPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [consented, setConsented] = useState(false);
   const router = useRouter();
   const isMounted = useIsMounted();
 
@@ -37,6 +39,16 @@ export default function EmployerSignupPage() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!consented) {
+      setError('Anda harus menyetujui syarat dan ketentuan untuk melanjutkan');
+      if (isMounted) {
+        triggerHaptic('error');
+        playAudioCue('error');
+        announce('Anda harus menyetujui syarat dan ketentuan untuk melanjutkan');
+      }
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError('Kata sandi tidak cocok');
@@ -227,9 +239,15 @@ export default function EmployerSignupPage() {
             }
           />
 
+          <ConsentForm
+            userType="employer"
+            onConsentChange={setConsented}
+            className="mt-6"
+          />
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !consented}
             className="w-full min-h-[48px] px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (

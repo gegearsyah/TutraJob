@@ -21,10 +21,7 @@ export const metadata: Metadata = {
   title: "Inklusif Kerja - Inclusive Work Platform",
   description: "Accessible recruitment platform for Indonesia",
   manifest: "/manifest.json",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#1e3a5f" },
-    { media: "(prefers-color-scheme: dark)", color: "#f59e0b" },
-  ],
+  themeColor: "#1e3a5f",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -43,7 +40,8 @@ export default function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
-          enableSystem={true}
+          enableSystem={false}
+          forcedTheme="light"
           disableTransitionOnChange
         >
           <VoicePreloader />

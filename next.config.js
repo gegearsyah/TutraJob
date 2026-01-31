@@ -22,6 +22,16 @@ const nextConfig = {
   reactStrictMode: true,
   images: {
     domains: [],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+      {
+        protocol: 'http',
+        hostname: '**',
+      },
+    ],
   },
   // Add empty turbopack config to silence the warning
   // next-pwa requires webpack, so we'll use webpack for builds

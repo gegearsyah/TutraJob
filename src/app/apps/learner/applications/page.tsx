@@ -11,6 +11,10 @@ import { supabase } from '@/lib/supabase/client';
 import { useIsMounted } from '@/lib/hooks/useIsMounted';
 import { usePageAnnouncement } from '@/hooks/usePageAnnouncement';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { TutorialButton } from '@/components/tutorial/TutorialButton';
+import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay';
+import { useTutorial } from '@/hooks/useTutorial';
+import { learnerApplicationsTutorialSteps } from '@/lib/tutorials/learner-applications-tutorial';
 import { AccessibleButton } from '@/components/ui/AccessibleButton';
 import { FocusAnnouncement } from '@/components/accessibility/FocusAnnouncement';
 import { AnnounceableText } from '@/components/accessibility/AnnounceableText';
@@ -54,6 +58,8 @@ const statusConfig: Record<
 export default function ApplicationsPage() {
   // Announce page on load and stop previous announcements
   usePageAnnouncement('Lamaran Saya', 'Lacak status lamaran pekerjaan Anda');
+
+  const { isOpen, startTutorial, closeTutorial, completeTutorial } = useTutorial('learner-applications');
 
   // Require authentication for this page
   const { isAuthenticated, userId, loading: authLoading } = useAuthGuard({
@@ -169,22 +175,29 @@ export default function ApplicationsPage() {
   return (
     <div className="container py-8">
       <div className="max-w-4xl mx-auto">
-        <header className="mb-8">
-          <FocusAnnouncement
-            description="Halaman Riwayat Lamaran. Di halaman ini, Anda dapat melihat semua lamaran pekerjaan yang telah dikirim, status setiap lamaran, tanggal lamaran, dan statistik keseluruhan."
-            label="Halaman Riwayat Lamaran"
-          >
-            <h1 className="text-3xl font-bold mb-2" tabIndex={0}>Riwayat Lamaran</h1>
-          </FocusAnnouncement>
-          <AnnounceableText
-            description="Halaman ini menampilkan semua lamaran pekerjaan yang telah Anda kirim. Anda dapat melacak status setiap lamaran, melihat tanggal lamaran, dan memeriksa statistik keseluruhan."
-            label="Deskripsi Halaman"
-            as="p"
-            className="text-muted-foreground"
-          >
-            Lacak status semua lamaran pekerjaan Anda
-          </AnnounceableText>
+        <header className="mb-8 flex items-start justify-between">
+          <div>
+            <FocusAnnouncement
+              description="Halaman Riwayat Lamaran. Di halaman ini, Anda dapat melihat semua lamaran pekerjaan yang telah dikirim, status setiap lamaran, tanggal lamaran, dan statistik keseluruhan."
+              label="Halaman Riwayat Lamaran"
+            >
+              <h1 className="text-3xl font-bold mb-2" tabIndex={0}>Riwayat Lamaran</h1>
+            </FocusAnnouncement>
+          </div>
+          <TutorialButton
+            onStart={startTutorial}
+            tutorialId="learner-applications"
+            label="Tutorial"
+          />
         </header>
+        <AnnounceableText
+          description="Halaman ini menampilkan semua lamaran pekerjaan yang telah Anda kirim. Anda dapat melacak status setiap lamaran, melihat tanggal lamaran, dan memeriksa statistik keseluruhan."
+          label="Deskripsi Halaman"
+          as="p"
+          className="text-muted-foreground mb-4"
+        >
+          Lacak status semua lamaran pekerjaan Anda
+        </AnnounceableText>
 
         {applications.length === 0 ? (
           <div className="text-center py-12 border border-border rounded-lg bg-card">
@@ -222,6 +235,16 @@ export default function ApplicationsPage() {
           <StatisticsCards applications={applications} />
         )}
       </div>
+
+      {/* Tutorial Overlay */}
+      <TutorialOverlay
+        steps={learnerApplicationsTutorialSteps}
+        isOpen={isOpen}
+        onClose={closeTutorial}
+        onComplete={completeTutorial}
+        tutorialId="learner-applications"
+        title="Tutorial Riwayat Lamaran"
+      />
     </div>
   );
 }

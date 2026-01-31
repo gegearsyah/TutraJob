@@ -13,6 +13,11 @@ import { useIsMounted } from '@/lib/hooks/useIsMounted';
 import { announce } from '@/lib/audio';
 
 export function ThemeToggle() {
+  const disableDarkMode = true;
+  if (disableDarkMode) {
+    return null;
+  }
+
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const isMounted = useIsMounted();

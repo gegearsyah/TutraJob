@@ -9,6 +9,10 @@ import { useState, useEffect } from 'react';
 import { useIsMounted } from '@/lib/hooks/useIsMounted';
 import { usePageAnnouncement } from '@/hooks/usePageAnnouncement';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { TutorialButton } from '@/components/tutorial/TutorialButton';
+import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay';
+import { useTutorial } from '@/hooks/useTutorial';
+import { learnerSavedTutorialSteps } from '@/lib/tutorials/learner-saved-tutorial';
 import { JobCard } from '@/components/job-seeker/JobCard';
 import { AccessibleButton } from '@/components/ui/AccessibleButton';
 import { SavedJobCard } from '@/components/accessibility/SavedJobCard';
@@ -65,6 +69,8 @@ export default function SavedJobsPage() {
   
   // Announce page on load and stop previous announcements
   usePageAnnouncement('Pekerjaan Tersimpan', 'Lihat pekerjaan yang telah Anda simpan');
+
+  const { isOpen, startTutorial, closeTutorial, completeTutorial } = useTutorial('learner-saved');
 
   // Require authentication for this page
   const { isAuthenticated, loading: authLoading } = useAuthGuard({
@@ -160,7 +166,7 @@ export default function SavedJobsPage() {
   return (
     <div className="container py-8">
       <div className="max-w-4xl mx-auto">
-        <header className="mb-8">
+        <header className="mb-8 flex items-start justify-between">
           <div className="flex items-center gap-3 mb-2">
             <Bookmark className="w-8 h-8 text-primary" aria-hidden="true" />
             <FocusAnnouncement
@@ -170,15 +176,20 @@ export default function SavedJobsPage() {
               <h1 className="text-3xl font-bold">Pekerjaan Tersimpan</h1>
             </FocusAnnouncement>
           </div>
-          <AnnounceableText
-            description="Halaman ini menampilkan pekerjaan yang telah Anda simpan untuk dilamar nanti. Anda dapat melamar langsung dari halaman ini atau menghapus pekerjaan yang tidak lagi diminati."
-            label="Deskripsi Halaman"
-            as="p"
-            className="text-muted-foreground"
-          >
-            Kelola pekerjaan yang telah Anda simpan untuk dilamar nanti
-          </AnnounceableText>
+          <TutorialButton
+            onStart={startTutorial}
+            tutorialId="learner-saved"
+            label="Tutorial"
+          />
         </header>
+        <AnnounceableText
+          description="Halaman ini menampilkan pekerjaan yang telah Anda simpan untuk dilamar nanti. Anda dapat melamar langsung dari halaman ini atau menghapus pekerjaan yang tidak lagi diminati."
+          label="Deskripsi Halaman"
+          as="p"
+          className="text-muted-foreground mb-4"
+        >
+          Kelola pekerjaan yang telah Anda simpan untuk dilamar nanti
+        </AnnounceableText>
 
         {savedJobs.length === 0 ? (
           <div className="text-center py-12 border border-border rounded-lg bg-card">
@@ -228,6 +239,16 @@ export default function SavedJobsPage() {
         isOpen={isDetailModalOpen}
         onClose={handleCloseDetailModal}
         onApply={handleApplyFromModal}
+      />
+
+      {/* Tutorial Overlay */}
+      <TutorialOverlay
+        steps={learnerSavedTutorialSteps}
+        isOpen={isOpen}
+        onClose={closeTutorial}
+        onComplete={completeTutorial}
+        tutorialId="learner-saved"
+        title="Tutorial Pekerjaan Tersimpan"
       />
     </div>
   );

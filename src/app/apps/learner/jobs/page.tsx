@@ -9,11 +9,14 @@ import { useState, useMemo, useEffect } from 'react';
 import { JobCardStack } from '@/components/job-seeker/JobCardStack';
 import { JobFilters, type FilterState } from '@/components/job-seeker/JobFilters';
 import { JobDetailModal } from '@/components/job-seeker/JobDetailModal';
-import { JobComparison } from '@/components/job-seeker/JobComparison';
 import { AccessibleButton } from '@/components/ui/AccessibleButton';
 import { FocusAnnouncement } from '@/components/accessibility/FocusAnnouncement';
 import { AnnounceableText } from '@/components/accessibility/AnnounceableText';
 import { usePageAnnouncement } from '@/hooks/usePageAnnouncement';
+import { TutorialButton } from '@/components/tutorial/TutorialButton';
+import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay';
+import { useTutorial } from '@/hooks/useTutorial';
+import { learnerJobsTutorialSteps } from '@/lib/tutorials/learner-jobs-tutorial';
 import { Building2 } from 'lucide-react';
 import type { JobListing } from '@/types/job';
 import { triggerHaptic } from '@/lib/haptic';
@@ -115,12 +118,11 @@ export default function JobsPage() {
   // Announce page on load and stop previous announcements
   usePageAnnouncement('Cari Pekerjaan', 'Jelajahi dan lamar pekerjaan yang tersedia');
 
+  const { isOpen, startTutorial, closeTutorial, completeTutorial } = useTutorial('learner-jobs');
   const [allJobs] = useState<JobListing[]>(mockJobs);
   const [appliedJobs, setAppliedJobs] = useState<Set<string>>(new Set());
   const [selectedJob, setSelectedJob] = useState<JobListing | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [comparisonJobs, setComparisonJobs] = useState<JobListing[]>([]);
-  const [isComparisonOpen, setIsComparisonOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [showMatchScores, setShowMatchScores] = useState(true);
   const isMounted = useIsMounted();
@@ -279,39 +281,23 @@ export default function JobsPage() {
     }
   };
 
-  const handleCompare = (jobId: string) => {
-    const job = allJobs.find((j) => j.id === jobId);
-    if (job) {
-      setComparisonJobs(prev => {
-        if (prev.find(j => j.id === jobId)) {
-          // Already in comparison, remove it
-          announce(`${job.title} dihapus dari perbandingan`);
-          return prev.filter(j => j.id !== jobId);
-        } else {
-          // Add to comparison (max 3 jobs)
-          if (prev.length >= 3) {
-            announce('Maksimal 3 pekerjaan dapat dibandingkan. Hapus salah satu pekerjaan terlebih dahulu.');
-            triggerHaptic('error');
-            return prev;
-          }
-          announce(`${job.title} ditambahkan ke perbandingan`);
-          triggerHaptic('confirmation');
-          return [...prev, job];
-        }
-      });
-    }
-  };
-
   return (
     <div className="container py-8">
       <div className="max-w-2xl mx-auto">
         <header className="mb-8">
-          <FocusAnnouncement
-            description="Halaman Cari Pekerjaan. Di halaman ini, Anda dapat menjelajahi lowongan kerja, menggunakan filter untuk mencari pekerjaan yang sesuai, dan melamar pekerjaan menggunakan gesture geser atau tombol."
-            label="Halaman Cari Pekerjaan"
-          >
-            <h1 className="text-3xl font-bold mb-2" tabIndex={0}>Cari Pekerjaan</h1>
-          </FocusAnnouncement>
+          <div className="flex items-start justify-between mb-2">
+            <FocusAnnouncement
+              description="Halaman Cari Pekerjaan. Di halaman ini, Anda dapat menjelajahi lowongan kerja, menggunakan filter untuk mencari pekerjaan yang sesuai, dan melamar pekerjaan menggunakan gesture geser atau tombol."
+              label="Halaman Cari Pekerjaan"
+            >
+              <h1 className="text-3xl font-bold" tabIndex={0}>Cari Pekerjaan</h1>
+            </FocusAnnouncement>
+            <TutorialButton
+              onStart={startTutorial}
+              tutorialId="learner-jobs"
+              label="Mulai Tutorial Cari Pekerjaan"
+            />
+          </div>
           <AnnounceableText
             description="Gunakan gesture geser kanan untuk melamar pekerjaan, geser kiri untuk melewatkan, atau ketuk dua kali untuk melihat detail lengkap. Anda juga dapat menggunakan tombol keyboard: A untuk melamar, D untuk melewatkan."
             label="Instruksi Navigasi"
@@ -346,7 +332,6 @@ export default function JobsPage() {
             onApply={handleApply}
             onDismiss={handleDismiss}
             onViewDetails={handleViewDetails}
-            onCompare={handleCompare}
             matchScores={jobMatches ? new Map(jobMatches.map(m => [m.jobId, m.score])) : undefined}
           />
         ) : (
@@ -398,6 +383,16 @@ export default function JobsPage() {
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
         onApply={handleApply}
+      />
+
+      {/* Tutorial Overlay */}
+      <TutorialOverlay
+        steps={learnerJobsTutorialSteps}
+        isOpen={isOpen}
+        onClose={closeTutorial}
+        onComplete={completeTutorial}
+        tutorialId="learner-jobs"
+        title="Tutorial Cari Pekerjaan"
       />
     </div>
   );

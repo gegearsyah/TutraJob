@@ -45,6 +45,7 @@ interface ScrapingSource {
 }
 
 export default function ScrapingConfigPage() {
+  // All hooks at top level before any conditional logic
   usePageAnnouncement('Pengaturan Scraping', 'Halaman konfigurasi scraping pekerjaan');
 
   const isMounted = useIsMounted();
@@ -71,6 +72,15 @@ export default function ScrapingConfigPage() {
     intervalHours: 6,
     selector: '',
     description: '',
+  });
+
+  // Define all hooks before rendering - MOVED BEFORE EARLY RETURNS
+  const addButtonProps = useFocusAnnouncement({
+    description: 'Tambah sumber scraping baru. Setelah diklik, form akan muncul untuk mengisi detail sumber scraping.',
+    label: 'Tambah Sumber',
+    context: 'Klik untuk menambahkan sumber scraping',
+    announceOnFocus: true,
+    announceOnLongPress: true,
   });
 
   useEffect(() => {
@@ -234,14 +244,6 @@ export default function ScrapingConfigPage() {
   if (!isAuthenticated || userRole !== 'admin') {
     return null;
   }
-
-  const addButtonProps = useFocusAnnouncement({
-    description: 'Tambah sumber scraping baru. Setelah diklik, form akan muncul untuk mengisi detail sumber scraping.',
-    label: 'Tambah Sumber',
-    context: 'Klik untuk menambahkan sumber scraping',
-    announceOnFocus: true,
-    announceOnLongPress: true,
-  });
 
   return (
     <div className="container py-8 max-w-6xl mx-auto">

@@ -28,6 +28,30 @@ export default function AdminDashboard() {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const dashboardCardProps = useFocusAnnouncement({
+    description: 'Navigasi ke halaman pengaturan scraping pekerjaan',
+    label: 'Pengaturan Scraping',
+    context: 'Klik untuk mengatur scraping pekerjaan',
+    announceOnFocus: true,
+    announceOnLongPress: true,
+  });
+
+  const extractionCardProps = useFocusAnnouncement({
+    description: 'Navigasi ke halaman ekstraksi pekerjaan manual',
+    label: 'Ekstraksi Pekerjaan',
+    context: 'Klik untuk mengekstrak pekerjaan secara manual',
+    announceOnFocus: true,
+    announceOnLongPress: true,
+  });
+
+  const landingCardProps = useFocusAnnouncement({
+    description: 'Navigasi ke manajemen landing page',
+    label: 'Manajemen Landing Page',
+    context: 'Klik untuk mengelola konten landing page',
+    announceOnFocus: true,
+    announceOnLongPress: true,
+  });
+
   // Check authentication and admin role
   const { isAuthenticated, loading: authLoading } = useAuthGuard({
     requireAuth: true,
@@ -81,22 +105,6 @@ export default function AdminDashboard() {
   if (!isAuthenticated || userRole !== 'admin') {
     return null; // Will redirect
   }
-
-  const dashboardCardProps = useFocusAnnouncement({
-    description: 'Navigasi ke halaman pengaturan scraping pekerjaan',
-    label: 'Pengaturan Scraping',
-    context: 'Klik untuk mengatur scraping pekerjaan',
-    announceOnFocus: true,
-    announceOnLongPress: true,
-  });
-
-  const extractionCardProps = useFocusAnnouncement({
-    description: 'Navigasi ke halaman ekstraksi pekerjaan manual',
-    label: 'Ekstraksi Pekerjaan',
-    context: 'Klik untuk mengekstrak pekerjaan secara manual',
-    announceOnFocus: true,
-    announceOnLongPress: true,
-  });
 
   return (
     <div className="container py-8">
@@ -162,6 +170,25 @@ export default function AdminDashboard() {
               </p>
               <div className="mt-4 text-sm text-primary font-medium">
                 Ekstrak Pekerjaan →
+              </div>
+            </div>
+          </Link>
+
+          <Link
+            href="/apps/admin/landing"
+            className="block"
+            {...landingCardProps}
+          >
+            <div className="p-6 border border-border rounded-lg bg-card hover:bg-muted/50 transition-colors min-h-[200px] flex flex-col">
+              <div className="flex items-center gap-3 mb-4">
+                <Settings className="w-8 h-8 text-primary" aria-hidden="true" />
+                <h2 className="text-xl font-semibold">Landing Page</h2>
+              </div>
+              <p className="text-sm text-muted-foreground flex-1">
+                Kelola konten landing page: tentang, statistik, mitra, artikel, nilai, dan kontak.
+              </p>
+              <div className="mt-4 text-sm text-primary font-medium">
+                Kelola Landing Page →
               </div>
             </div>
           </Link>

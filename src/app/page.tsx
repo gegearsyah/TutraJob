@@ -1,143 +1,100 @@
-'use client';
+import { Metadata } from 'next';
+import { LandingPage } from '@/components/landing/LandingPage';
+import {
+  LandingAbout,
+  LandingStatistic,
+  LandingCreatorProfile,
+  LandingEmployer,
+  LandingArticle,
+  LandingValue,
+  LandingContact,
+} from '@/types/landing';
 
-import { useEffect } from 'react';
-import Link from "next/link";
-import { useIsMounted } from '@/lib/hooks/useIsMounted';
-import { announce } from '@/lib/audio';
-import { useFocusAnnouncement } from '@/hooks/useFocusAnnouncement';
+// SEO Metadata
+export const metadata: Metadata = {
+  title: 'Inklusif Kerja - Platform Rekrutmen yang Mudah Diakses untuk Indonesia',
+  description: 'Platform rekrutmen inklusif yang menghubungkan pencari kerja dengan disabilitas dan perusahaan yang berkomitmen pada inklusi. Temukan peluang karir yang sesuai dengan kebutuhan Anda.',
+  keywords: ['rekrutmen', 'disabilitas', 'inklusi', 'pekerjaan', 'karir', 'Indonesia', 'aksesibilitas'],
+  openGraph: {
+    title: 'Inklusif Kerja - Platform Rekrutmen yang Mudah Diakses',
+    description: 'Platform rekrutmen inklusif untuk Indonesia',
+    type: 'website',
+    locale: 'id_ID',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Inklusif Kerja - Platform Rekrutmen yang Mudah Diakses',
+    description: 'Platform rekrutmen inklusif untuk Indonesia',
+  },
+  alternates: {
+    canonical: '/',
+  },
+};
 
-export default function Home() {
-  const isMounted = useIsMounted();
+async function fetchLandingData() {
+  try {
+    // Use direct Supabase calls for server-side rendering
+    const { supabaseAdmin } = await import('@/lib/supabase/server');
+    
+    const [aboutRes, statisticsRes, creatorsRes, employersRes, articlesRes, valuesRes, contactRes] = await Promise.all([
+      supabaseAdmin.from('landing_about').select('*').eq('is_active', true).order('order_index', { ascending: true }).limit(1).single(),
+      supabaseAdmin.from('landing_statistics').select('*').eq('is_active', true).order('order_index', { ascending: true }),
+      supabaseAdmin.from('landing_creator_profile').select('*').eq('is_active', true).order('order_index', { ascending: true }),
+      supabaseAdmin.from('landing_employers').select('*').eq('is_active', true).order('order_index', { ascending: true }),
+      supabaseAdmin.from('landing_articles').select('*').eq('is_active', true).order('order_index', { ascending: true }),
+      supabaseAdmin.from('landing_values').select('*').eq('is_active', true).order('order_index', { ascending: true }),
+      supabaseAdmin.from('landing_contact').select('*').eq('is_active', true).order('order_index', { ascending: true }),
+    ]);
 
-  useEffect(() => {
-    if (isMounted && typeof window !== 'undefined') {
-      // Announce immediately when page loads
-      const announceWelcome = () => {
-        if ('speechSynthesis' in window) {
-          announce('Selamat datang di aplikasi Inklusif Kerja. Platform rekrutmen yang mudah diakses untuk Indonesia. Pilih portal yang ingin Anda akses: Portal Pencari Kerja, Portal Pemberi Kerja, atau Portal Pemerintah.');
-        }
-      };
+    return {
+      about: (aboutRes.data && !aboutRes.error) ? aboutRes.data as LandingAbout : undefined,
+      statistics: (statisticsRes.data && !statisticsRes.error) ? statisticsRes.data as LandingStatistic[] : [],
+      creators: (creatorsRes.data && !creatorsRes.error) ? creatorsRes.data as LandingCreatorProfile[] : [],
+      employers: (employersRes.data && !employersRes.error) ? employersRes.data as LandingEmployer[] : [],
+      articles: (articlesRes.data && !articlesRes.error) ? articlesRes.data as LandingArticle[] : [],
+      values: (valuesRes.data && !valuesRes.error) ? valuesRes.data as LandingValue[] : [],
+      contact: (contactRes.data && !contactRes.error) ? contactRes.data as LandingContact[] : [],
+    };
+  } catch (error) {
+    console.error('Error fetching landing page data:', error);
+    return {
+      about: undefined,
+      statistics: [],
+      creators: [],
+      employers: [],
+      articles: [],
+      values: [],
+      contact: [],
+    };
+  }
+}
 
-      // Try immediately, then retry if needed
-      announceWelcome();
-      const timer = setTimeout(() => {
-        if (window.speechSynthesis.getVoices().length === 0) {
-          // Voices not loaded yet, wait a bit more
-          setTimeout(announceWelcome, 300);
-        }
-      }, 100);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [isMounted]);
+export default async function Home() {
+  const landingData = await fetchLandingData();
+
+  // Structured data for SEO
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Inklusif Kerja',
+    description: 'Platform rekrutmen yang mudah diakses untuk Indonesia',
+    url: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+    logo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/logo.png`,
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'Customer Service',
+      email: landingData.contact.find(c => c.contact_type === 'email')?.value,
+      telephone: landingData.contact.find(c => c.contact_type === 'phone')?.value,
+    },
+  };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-8">
-      <div className="text-center space-y-6">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gradient-primary">
-          Inklusif Kerja
-        </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl">
-          Platform rekrutmen yang mudah diakses untuk Indonesia
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-          {(() => {
-            const learnerPortalProps = useFocusAnnouncement({
-              description: 'Portal Pencari Kerja. Klik untuk mengakses portal pencari kerja, di mana Anda dapat mencari pekerjaan, melamar, dan mengelola profil Anda.',
-              label: 'Tombol Portal Pencari Kerja',
-              context: 'Tekan Enter untuk membuka Portal Pencari Kerja',
-              announceOnFocus: true,
-              announceOnLongPress: true,
-            });
-            return (
-              <Link
-                href="/apps/learner"
-                className="px-6 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors min-h-[48px] flex items-center justify-center"
-                {...learnerPortalProps}
-              >
-                Portal Pencari Kerja
-              </Link>
-            );
-          })()}
-          {(() => {
-            const employerPortalProps = useFocusAnnouncement({
-              description: 'Portal Pemberi Kerja. Klik untuk mengakses portal pemberi kerja, di mana Anda dapat memposting lowongan, mengelola kandidat, dan melacak compliance.',
-              label: 'Tombol Portal Pemberi Kerja',
-              context: 'Tekan Enter untuk membuka Portal Pemberi Kerja',
-              announceOnFocus: true,
-              announceOnLongPress: true,
-            });
-            return (
-              <Link
-                href="/apps/employer"
-                className="px-6 py-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-colors min-h-[48px] flex items-center justify-center"
-                {...employerPortalProps}
-              >
-                Portal Pemberi Kerja
-              </Link>
-            );
-          })()}
-          {(() => {
-            const govPortalProps = useFocusAnnouncement({
-              description: 'Portal Pemerintah. Klik untuk mengakses portal pemerintah, di mana Anda dapat memantau compliance perusahaan dan melihat statistik industri.',
-              label: 'Tombol Portal Pemerintah',
-              context: 'Tekan Enter untuk membuka Portal Pemerintah',
-              announceOnFocus: true,
-              announceOnLongPress: true,
-            });
-            return (
-              <Link
-                href="/apps/gov"
-                className="px-6 py-3 rounded-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-colors min-h-[48px] flex items-center justify-center"
-                {...govPortalProps}
-              >
-                Portal Pemerintah
-              </Link>
-            );
-          })()}
-        </div>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
-          {(() => {
-            const learnerLoginProps = useFocusAnnouncement({
-              description: 'Masuk sebagai Pencari Kerja. Klik untuk masuk ke akun pencari kerja Anda. Jika belum punya akun, Anda dapat mendaftar terlebih dahulu.',
-              label: 'Tombol Masuk sebagai Pencari Kerja',
-              context: 'Tekan Enter untuk membuka halaman login pencari kerja',
-              announceOnFocus: true,
-              announceOnLongPress: true,
-            });
-            return (
-              <Link
-                href="/apps/learner/auth/login"
-                className="px-6 py-3 rounded-lg border border-primary text-primary hover:bg-primary/10 transition-colors min-h-[48px] flex items-center justify-center"
-                {...learnerLoginProps}
-              >
-                Masuk sebagai Pencari Kerja
-              </Link>
-            );
-          })()}
-          {(() => {
-            const employerLoginProps = useFocusAnnouncement({
-              description: 'Masuk sebagai Pemberi Kerja. Klik untuk masuk ke akun pemberi kerja Anda. Jika belum punya akun, Anda dapat mendaftar terlebih dahulu.',
-              label: 'Tombol Masuk sebagai Pemberi Kerja',
-              context: 'Tekan Enter untuk membuka halaman login pemberi kerja',
-              announceOnFocus: true,
-              announceOnLongPress: true,
-            });
-            return (
-              <Link
-                href="/apps/employer/auth/login"
-                className="px-6 py-3 rounded-lg border border-secondary text-secondary-foreground hover:bg-secondary/10 transition-colors min-h-[48px] flex items-center justify-center"
-                {...employerLoginProps}
-              >
-                Masuk sebagai Pemberi Kerja
-              </Link>
-            );
-          })()}
-        </div>
-        <p className="text-sm text-muted-foreground mt-8">
-          Untuk pengembangan: Gunakan subdomain atau tambahkan ?tenant=learner, ?tenant=employer, atau ?tenant=gov ke URL
-        </p>
-      </div>
-    </div>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <LandingPage {...landingData} />
+    </>
   );
 }

@@ -162,6 +162,7 @@ function ClearFiltersButton({ onClick }: ClearFiltersButtonProps) {
 }
 
 export function JobFilters({ onFilterChange, className }: JobFiltersProps) {
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     search: '',
     location: [],
@@ -196,9 +197,29 @@ export function JobFilters({ onFilterChange, className }: JobFiltersProps) {
 
   const updateFilter = (key: keyof FilterState, value: any) => {
     const newFilters = { ...filters, [key]: value };
-    setFilters(newFilters);
     onFilterChange(newFilters);
   };
+
+  const clearAllFilters = () => {
+    const clearedFilters = {
+      search: '',
+      location: [],
+      salaryMin: null,
+      salaryMax: null,
+      accessibilityLevel: [],
+      workArrangement: [],
+    };
+    setFilters(clearedFilters);
+    onFilterChange(clearedFilters);
+  };
+
+  // Count active filters
+  const activeFilterCount = 
+    filters.location.length +
+    filters.accessibilityLevel.length +
+    filters.workArrangement.length +
+    (filters.salaryMin ? 1 : 0) +
+    (filters.salaryMax ? 1 : 0);
 
   return (
     <div className={cn('space-y-4', className)}>
@@ -210,17 +231,37 @@ export function JobFilters({ onFilterChange, className }: JobFiltersProps) {
           placeholder="Cari pekerjaan, perusahaan, atau skill..."
           value={filters.search}
           onChange={(e) => updateFilter('search', e.target.value)}
-          className="w-full min-h-[48px] pl-12 pr-4 py-2 border border-input rounded-lg bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="w-full min-h-[48px] pl-12 pr-4 py-2 text-base border border-input rounded-lg bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label="Cari pekerjaan"
         />
       </div>
 
       {/* Quick Filters */}
       <div className="flex flex-wrap gap-2">
-        <ToggleFilterButton
-          isExpanded={isExpanded}
-          onClick={() => setIsExpanded(!isExpanded)}
-        />
+        {/* Mobile: Filter button with count badge */}
+        <button
+          onClick={() => {
+            setIsExpanded(!isExpanded);
+            setIsMobileFilterOpen(!isMobileFilterOpen);
+          }}
+          className="md:hidden relative px-4 py-2 text-sm border border-border rounded-lg hover:bg-muted transition-colors min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring flex items-center gap-2"
+          aria-label={`Filter - ${activeFilterCount} filter aktif`}
+        >
+          Filter
+          {activeFilterCount > 0 && (
+            <span className="flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-primary rounded-full">
+              {activeFilterCount}
+            </span>
+          )}
+        </button>
+
+        {/* Desktop: Toggle button */}
+        <div className="hidden md:block">
+          <ToggleFilterButton
+            isExpanded={isExpanded}
+            onClick={() => setIsExpanded(!isExpanded)}
+          />
+        </div>
 
         {/* Voice Filter Button - Always render component to ensure hook is called */}
         <VoiceFilterButton
