@@ -36,40 +36,72 @@ export function useAuthGuard(options: UseAuthGuardOptions = {}) {
       return;
     }
 
+    let isActive = true;
+
     const checkAuth = async () => {
       try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          if (!isActive) return;
+          setIsAuthenticated(true);
+          setUserId(session.user.id);
+          setLoading(false);
+          return;
+        }
+
         const { data: { user }, error } = await supabase.auth.getUser();
 
         if (error || !user) {
+          if (!isActive) return;
           setIsAuthenticated(false);
           setUserId(null);
-          
+
           if (onUnauthenticated) {
             onUnauthenticated();
           } else {
-            // Redirect to login with return URL
             const currentPath = window.location.pathname;
             const returnUrl = encodeURIComponent(currentPath);
             router.push(`${redirectTo}?returnUrl=${returnUrl}`);
-            
+
             if (isMounted) {
               announce('Anda harus login terlebih dahulu untuk mengakses halaman ini');
             }
           }
         } else {
+          if (!isActive) return;
           setIsAuthenticated(true);
           setUserId(user.id);
         }
       } catch (error) {
         console.error('Error checking auth:', error);
+        if (!isActive) return;
         setIsAuthenticated(false);
         setUserId(null);
       } finally {
-        setLoading(false);
+        if (isActive) {
+          setLoading(false);
+        }
       }
     };
 
     checkAuth();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isActive) return;
+      if (session?.user) {
+        setIsAuthenticated(true);
+        setUserId(session.user.id);
+      } else {
+        setIsAuthenticated(false);
+        setUserId(null);
+      }
+      setLoading(false);
+    });
+
+    return () => {
+      isActive = false;
+      authListener?.subscription?.unsubscribe();
+    };
   }, [isMounted, requireAuth, redirectTo, router, onUnauthenticated]);
 
   return {

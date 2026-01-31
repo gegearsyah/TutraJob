@@ -239,55 +239,89 @@ export default function AdminArticlesPage() {
             </div>
 
             <AccessibleInput
-              label="Judul"
+              label="Judul Artikel"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              placeholder="Masukkan judul artikel yang menarik..."
               required
             />
 
             <div>
-              <label className="block text-sm font-medium mb-2">Konten</label>
+              <label className="block text-sm font-medium mb-2">
+                Konten Artikel *
+                <span className="text-xs text-muted-foreground ml-2">
+                  Gunakan # untuk heading, ## untuk sub-heading, &gt; untuk kutipan
+                </span>
+              </label>
               <textarea
                 value={formData.content}
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                rows={5}
-                className="w-full px-3 py-2 border rounded-lg bg-background"
+                rows={12}
+                className="w-full px-4 py-3 border rounded-lg bg-background font-mono text-sm leading-relaxed"
+                placeholder="Tulis konten artikel Anda di sini...&#10;&#10;# Heading Utama&#10;Paragraf pertama dengan penjelasan lengkap.&#10;&#10;## Sub Heading&#10;Paragraf berikutnya.&#10;&#10;> Ini adalah kutipan penting"
                 required
               />
+              <p className="text-xs text-muted-foreground mt-2">
+                {formData.content.split(' ').filter(w => w.length > 0).length} kata • 
+                ~{Math.ceil(formData.content.split(' ').filter(w => w.length > 0).length / 200)} menit baca
+              </p>
             </div>
 
-            {formData.type === 'testimonial' && (
-              <>
-                <AccessibleInput
-                  label="Nama Pembuat Testimoni"
-                  value={formData.author_name}
-                  onChange={(e) => setFormData({ ...formData, author_name: e.target.value })}
-                />
+            {/* Author Info - for both types */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
+              <div className="md:col-span-2">
+                <h3 className="font-semibold mb-2">Informasi Penulis</h3>
+              </div>
+              
+              <AccessibleInput
+                label={formData.type === 'testimonial' ? 'Nama Pembuat Testimoni' : 'Nama Penulis'}
+                value={formData.author_name}
+                onChange={(e) => setFormData({ ...formData, author_name: e.target.value })}
+                placeholder="John Doe"
+              />
 
-                <AccessibleInput
-                  label="Jabatan/Peran"
-                  value={formData.author_title}
-                  onChange={(e) => setFormData({ ...formData, author_title: e.target.value })}
-                />
+              <AccessibleInput
+                label={formData.type === 'testimonial' ? 'Jabatan/Peran' : 'Posisi Penulis'}
+                value={formData.author_title}
+                onChange={(e) => setFormData({ ...formData, author_title: e.target.value })}
+                placeholder="Software Engineer"
+              />
 
+              <div className="md:col-span-2">
                 <AccessibleInput
-                  label="URL Gambar Pembuat Testimoni"
+                  label="URL Foto Penulis"
                   value={formData.author_image_url}
                   onChange={(e) => setFormData({ ...formData, author_image_url: e.target.value })}
+                  placeholder="https://example.com/author.jpg"
                 />
-              </>
-            )}
+                {formData.author_image_url && (
+                  <div className="mt-2 relative w-16 h-16 rounded-full overflow-hidden border-2">
+                    <img src={formData.author_image_url} alt="Preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
+            </div>
 
-            <AccessibleInput
-              label="URL Gambar Artikel"
-              value={formData.image_url}
-              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-            />
+            {/* Featured Image */}
+            <div className="space-y-2">
+              <AccessibleInput
+                label="URL Gambar Unggulan"
+                value={formData.image_url}
+                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                placeholder="https://example.com/featured-image.jpg"
+              />
+              {formData.image_url && (
+                <div className="relative aspect-video rounded-lg overflow-hidden border">
+                  <img src={formData.image_url} alt="Preview" className="w-full h-full object-cover" />
+                </div>
+              )}
+            </div>
 
             <AccessibleInput
               label="Kategori"
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              placeholder="Karir, Teknologi, Tips, dll."
             />
 
             <div className="flex gap-4">

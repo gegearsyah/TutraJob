@@ -10,9 +10,19 @@ import { useTutorial } from '@/hooks/useTutorial';
 import { learnerTutorialSteps } from '@/lib/tutorials/learner-tutorial';
 import { usePageAnnouncement } from '@/hooks/usePageAnnouncement';
 import { useIsMounted } from '@/lib/hooks/useIsMounted';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { announce } from '@/lib/audio';
+import { useRouter } from 'next/navigation';
 
 export default function LearnerPage() {
+  // Authentication guard - redirect to login if not authenticated
+  const { isAuthenticated, loading: authLoading } = useAuthGuard({
+    requireAuth: true,
+    redirectTo: '/apps/learner/auth/login',
+  });
+
+  const router = useRouter();
+
   // Announce page on load and stop previous announcements
   usePageAnnouncement('Portal Pencari Kerja', 'Halaman utama untuk pencari kerja');
 
@@ -42,6 +52,22 @@ export default function LearnerPage() {
       }
     }
   }, [isMounted, hasCompleted, startTutorial]);
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="container py-8">
+        <div className="text-center">
+          <p className="text-muted-foreground">Memverifikasi akses...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect if not authenticated (useAuthGuard will handle this, but adding as safety)
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="container py-8">

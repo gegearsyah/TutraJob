@@ -1,6 +1,7 @@
 /**
  * Role-based Authentication Utilities
- * Handles user roles (learner, employer, gov)
+ * Handles user roles (learner, employer, gov, admin)
+ * Queries from dedicated users table instead of auth metadata
  */
 
 import { supabase } from '@/lib/supabase/client';
@@ -8,28 +9,38 @@ import { supabase } from '@/lib/supabase/client';
 export type UserRole = 'learner' | 'employer' | 'gov' | 'admin';
 
 /**
- * Get user role from auth metadata
+ * Get user role from users table
  */
 export async function getUserRole(): Promise<UserRole | null> {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) return null;
-
-    // Check user metadata for role
-    const userType = user.user_metadata?.user_type as string;
-    
-    if (userType === 'learner' || userType === 'employer' || userType === 'gov' || userType === 'admin') {
-      return userType as UserRole;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
     }
 
-    // Check if user email is admin (for development)
-    if (user.email?.endsWith('@admin.inklusifkerja.id') || user.email?.includes('admin@')) {
-      return 'admin';
+    const userId = session?.user?.id;
+    if (!userId) return null;
+
+    // Query role from users table (most reliable)
+    const { data, error } = await supabase
+      .from('users')
+      .select('user_type')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.warn('Error querying users table:', error.message);
+      // Fallback to metadata
+      const userEmail = session?.user?.email;
+      if (userEmail?.endsWith('@admin.inklusifkerja.id') || userEmail?.includes('admin@')) {
+        return 'admin';
+      }
+      return 'learner';
     }
 
-    // Default to learner if no role specified
-    return 'learner';
+    const role = data?.user_type as UserRole | null;
+    return role ?? 'learner';
   } catch (error) {
     console.error('Error getting user role:', error);
     return null;
@@ -49,23 +60,8 @@ export async function hasRole(role: UserRole): Promise<boolean> {
  */
 export async function requireRole(role: UserRole): Promise<void> {
   const userRole = await getUserRole();
-  
+
   if (userRole !== role) {
     throw new Error(`Access denied. Required role: ${role}`);
-  }
-}
-
-/**
- * Get user role from server-side
- * Note: This requires service role key for admin access
- */
-export async function getUserRoleServer(userId: string): Promise<UserRole | null> {
-  try {
-    // For now, use client-side method
-    // In production, this should use Supabase Admin API with service role key
-    return await getUserRole();
-  } catch (error) {
-    console.error('Error getting user role (server):', error);
-    return null;
   }
 }

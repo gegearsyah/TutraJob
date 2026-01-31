@@ -2,6 +2,42 @@
 -- IMPORTANT: Create users in Supabase Auth first, then use their UUIDs here
 
 -- ============================================
+-- Seed public.users table with test accounts
+-- Only insert for users that already exist in auth.users
+-- ============================================
+
+-- Insert admin user (from auth.users where email matches)
+INSERT INTO public.users (id, email, user_type, is_active)
+SELECT id, email, 'admin', TRUE
+FROM auth.users
+WHERE email = 'admin@inklusifkerja.id'
+ON CONFLICT (email) DO UPDATE SET user_type = 'admin', is_active = TRUE;
+
+-- Insert any existing learner users
+INSERT INTO public.users (id, email, user_type, is_active)
+SELECT id, email, 'learner', TRUE
+FROM auth.users
+WHERE email = 'learner@example.com'
+ON CONFLICT (email) DO UPDATE SET user_type = 'learner', is_active = TRUE;
+
+-- Insert any existing employer users
+INSERT INTO public.users (id, email, user_type, is_active)
+SELECT id, email, 'employer', TRUE
+FROM auth.users
+WHERE email = 'employer@example.com'
+ON CONFLICT (email) DO UPDATE SET user_type = 'employer', is_active = TRUE;
+
+-- Insert any existing gov users
+INSERT INTO public.users (id, email, user_type, is_active)
+SELECT id, email, 'gov', TRUE
+FROM auth.users
+WHERE email = 'gov@example.com'
+ON CONFLICT (email) DO UPDATE SET user_type = 'gov', is_active = TRUE;
+
+-- Verify inserted users
+SELECT id, email, user_type, is_active, created_at FROM public.users ORDER BY created_at DESC;
+
+-- ============================================
 -- Instructions
 -- ============================================
 -- 1. Create users via Supabase Auth dashboard or API

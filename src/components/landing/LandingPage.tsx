@@ -37,6 +37,7 @@ import {
 import Image from 'next/image';
 import { PartnersCarousel } from './PartnersCarousel';
 import { LandingNarrator } from './LandingNarrator';
+import { LandingHeader } from './LandingHeader';
 import CreatorsCarousel from './CreatorsCarousel';
 
 interface LandingPageProps {
@@ -110,11 +111,21 @@ export function LandingPage({
     }
   };
 
+  const formatCategory = (value: string) => {
+    return value
+      .replace(/carrer/gi, 'career')
+      .replace(/[_-]+/g, ' ')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      {/* Transparent Header Navigation */}
+      <LandingHeader />
+
       {/* Hero Section - Similar to Karier.mu */}
       <section
-        className="relative py-20 md:py-32 px-4 bg-gradient-to-br from-primary via-primary/95 to-primary/90 overflow-hidden"
+        className="relative pt-24 pb-20 md:pt-32 md:pb-32 px-4 bg-gradient-to-br from-primary via-primary/95 to-primary/90 overflow-hidden"
         aria-label="Bagian utama"
       >
         <div className="absolute inset-0 opacity-10" aria-hidden="true" style={{
@@ -228,9 +239,31 @@ export function LandingPage({
         </section>
       )}
 
+      {/* Employers Section - With Auto Carousel - Moved below Statistics */}
+      {employers.length > 0 && (
+        <section
+          id="partners"
+          className="py-20 px-4 bg-slate-50"
+          aria-label="Mitra Perusahaan"
+        >
+          <div className="container mx-auto max-w-7xl">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+                Partners Who Have Trusted Us
+              </h2>
+              <p className="text-xl text-muted-foreground">
+                Mitra Perusahaan yang Telah Mempercayai Kami
+              </p>
+            </div>
+            <PartnersCarousel employers={employers} />
+          </div>
+        </section>
+      )}
+
       {/* About Us & Why We're Different */}
       {about && (
         <section
+          id="about"
           className="py-20 px-4 bg-background"
           aria-label="Tentang Kami"
         >
@@ -288,9 +321,10 @@ export function LandingPage({
         </section>
       )}
 
-      {/* Creator Profiles - Carousel */}
+      {/* Creator Profiles - Carousel with Auto-scroll */}
       {creators.length > 0 && (
         <section
+          id="creators"
           className="py-20 px-4 bg-white"
           aria-label="Profil Pembuat"
         >
@@ -305,104 +339,124 @@ export function LandingPage({
         </section>
       )}
 
-      {/* Employers Section - With Auto Carousel */}
-      {employers.length > 0 && (
+      {/* Articles Section */}
+      {articles.filter(a => a.type !== 'testimonial').length > 0 && (
         <section
-          className="py-20 px-4 bg-slate-50"
-          aria-label="Mitra Perusahaan"
-        >
-          <div className="container mx-auto max-w-7xl">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
-                Partners Who Have Trusted Us
-              </h2>
-              <p className="text-xl text-muted-foreground">
-                Mitra Perusahaan yang Telah Mempercayai Kami
-              </p>
-            </div>
-            <PartnersCarousel employers={employers} />
-          </div>
-        </section>
-      )}
-
-      {/* Articles & Testimonials */}
-      {articles.length > 0 && (
-        <section
+          id="articles"
           className="py-20 px-4 bg-gradient-to-br from-card to-background"
-          aria-label="Artikel dan Testimoni"
+          aria-label="Artikel dan Insights"
         >
           <div className="container mx-auto max-w-7xl">
             <div className="text-center mb-12">
               <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                Informasi Edukatif Seputar Karir & Testimoni
+                Artikel & Insights
               </h2>
+              <p className="text-xl text-muted-foreground">
+                Informasi edukatif seputar karir dan perkembangan diri
+              </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {articles.map((article) => (
-                <article
+              {articles.filter(a => a.type !== 'testimonial').map((article) => (
+                <Link
                   key={article.id}
-                  className="bg-background rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300"
+                  href={`/artikel/${article.id}`}
+                  className="group bg-background rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
                   role="article"
                   aria-labelledby={`article-${article.id}`}
                 >
-                  {article.type === 'testimonial' ? (
-                    <>
-                      <Quote className="w-10 h-10 text-primary mb-4" aria-hidden="true" />
-                      <p className="text-muted-foreground mb-6 italic text-lg leading-relaxed">"{article.content}"</p>
-                      {article.author_name && (
-                        <div className="flex items-center gap-4">
-                          {article.author_image_url && (
-                            <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                              <Image
-                                src={article.author_image_url}
-                                alt={article.author_name}
-                                fill
-                                className="object-cover"
-                                onError={(e) => {
-                                  (e.currentTarget as HTMLImageElement).src = '/placeholder-avatar.svg';
-                                }}
-                              />
-                            </div>
-                          )}
-                          <div>
-                            <div className="font-semibold">{article.author_name}</div>
-                            {article.author_title && (
-                              <div className="text-sm text-muted-foreground">{article.author_title}</div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      {article.image_url && (
-                        <div className="relative aspect-video rounded-xl overflow-hidden mb-4">
-                          <Image
-                            src={article.image_url}
-                            alt={article.title}
-                            fill
-                            className="object-cover"
-                            onError={(e) => {
-                              (e.currentTarget as HTMLImageElement).src = '/placeholder-image.svg';
-                            }}
-                          />
-                        </div>
-                      )}
-                      <FileText className="w-10 h-10 text-primary mb-4" aria-hidden="true" />
-                      <h3 className="text-xl font-semibold mb-3" id={`article-${article.id}`}>
-                        {article.title}
-                      </h3>
-                      <p className="text-muted-foreground line-clamp-3 leading-relaxed">{article.content}</p>
+                  {article.image_url && (
+                    <div className="relative aspect-video overflow-hidden">
+                      <Image
+                        src={article.image_url}
+                        alt={article.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = '/placeholder-image.svg';
+                        }}
+                      />
+                    </div>
+                  )}
+                  <div className="p-6">
+                    {article.category && (
+                      <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-3">
+                        {formatCategory(article.category)}
+                      </span>
+                    )}
+                    <h3 className="text-xl font-semibold mb-3 group-hover:text-primary transition-colors" id={`article-${article.id}`}>
+                      {article.title}
+                    </h3>
+                    <p className="text-muted-foreground line-clamp-3 leading-relaxed mb-4">{article.content}</p>
+                    <div className="flex items-center justify-between text-sm text-muted-foreground">
                       {article.published_at && (
-                        <div className="text-sm text-muted-foreground mt-4">
+                        <span>
                           {new Date(article.published_at).toLocaleDateString('id-ID', { 
                             year: 'numeric', 
                             month: 'long', 
                             day: 'numeric' 
                           })}
+                        </span>
+                      )}
+                      <span className="flex items-center gap-1 text-primary font-medium group-hover:gap-2 transition-all">
+                        Baca Selengkapnya
+                        <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Testimonials Section */}
+      {articles.filter(a => a.type === 'testimonial').length > 0 && (
+        <section
+          className="py-20 px-4 bg-background"
+          aria-label="Testimoni Pengguna"
+        >
+          <div className="container mx-auto max-w-7xl">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                Testimoni Pengguna
+              </h2>
+              <p className="text-xl text-muted-foreground">
+                Dengarkan kisah sukses dari pengguna kami
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {articles.filter(a => a.type === 'testimonial').map((article) => (
+                <article
+                  key={article.id}
+                  className="bg-card rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300"
+                  role="article"
+                  aria-labelledby={`testimonial-${article.id}`}
+                >
+                  <Quote className="w-10 h-10 text-primary mb-4" aria-hidden="true" />
+                  <p className="text-muted-foreground mb-6 italic text-lg leading-relaxed">"{article.content}"</p>
+                  {article.author_name && (
+                    <div className="flex items-center gap-4">
+                      {article.author_image_url && (
+                        <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                          <Image
+                            src={article.author_image_url}
+                            alt={article.author_name}
+                            fill
+                            className="object-cover"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).src = '/placeholder-avatar.svg';
+                            }}
+                          />
                         </div>
                       )}
-                    </>
+                      <div>
+                        <div className="font-semibold" id={`testimonial-${article.id}`}>{article.author_name}</div>
+                        {article.author_title && (
+                          <div className="text-sm text-muted-foreground">{article.author_title}</div>
+                        )}
+                      </div>
+                    </div>
                   )}
                 </article>
               ))}
@@ -447,6 +501,7 @@ export function LandingPage({
       {/* Contact Section */}
       {contact.length > 0 && (
         <section
+          id="contact"
           className="py-20 px-4 bg-gradient-to-br from-primary/5 to-secondary/5"
           aria-label="Kontak"
         >

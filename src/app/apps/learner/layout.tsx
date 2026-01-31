@@ -4,8 +4,10 @@ import { AnnouncementControl } from "@/components/accessibility/AnnouncementCont
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { FocusAnnouncement } from "@/components/accessibility/FocusAnnouncement";
 import { MobileBottomNav } from "@/components/navigation/MobileBottomNav";
+import { UserNavigation } from "@/components/layout/UserNavigation";
 import Link from "next/link";
 import { Home, Briefcase, User, Bookmark, FileText } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 // Metadata moved to page.tsx files
 
@@ -14,8 +16,12 @@ export default function LearnerLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const isAuthPage = pathname?.includes('/auth/');
+
   return (
     <div className="min-h-screen bg-background">
+      {!isAuthPage && (
       <header className="border-b border-border bg-card sticky top-0 z-40">
         <div className="container py-4">
           <div className="flex items-center justify-between">
@@ -99,12 +105,14 @@ export default function LearnerLayout({
               <div data-tutorial="notifications">
                 <NotificationCenter />
               </div>
+              <UserNavigation userType="learner" profileUrl="/apps/learner/profile" />
             </div>
           </div>
         </div>
       </header>
-      <main className="pb-20 md:pb-8">{children}</main>
-      <MobileBottomNav />
+      )}
+      <main className={isAuthPage ? "" : "pb-20 md:pb-8"}>{children}</main>
+      {!isAuthPage && <MobileBottomNav />}
       <AnnouncementControl variant="floating" />
     </div>
   );

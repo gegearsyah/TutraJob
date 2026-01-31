@@ -26,6 +26,8 @@ import { matchJobsToUser, getMatchLevel } from '@/lib/matching/job-matcher';
 import { supabase } from '@/lib/supabase/client';
 import { useIsMounted } from '@/lib/hooks/useIsMounted';
 import { useDeadlineReminders } from '@/hooks/useDeadlineReminders';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { UserNavigation } from '@/components/layout/UserNavigation';
 
 // Mock data - will be replaced with API calls
 // Using fixed dates to prevent hydration mismatches
@@ -115,6 +117,12 @@ const mockJobs: JobListing[] = [
 ];
 
 export default function JobsPage() {
+  // Authentication guard - redirect to login if not authenticated
+  const { isAuthenticated, loading: authLoading } = useAuthGuard({
+    requireAuth: true,
+    redirectTo: '/apps/learner/auth/login',
+  });
+
   // Announce page on load and stop previous announcements
   usePageAnnouncement('Cari Pekerjaan', 'Jelajahi dan lamar pekerjaan yang tersedia');
 
@@ -281,8 +289,30 @@ export default function JobsPage() {
     }
   };
 
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="container py-8">
+        <div className="text-center">
+          <p className="text-muted-foreground">Memverifikasi akses...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect if not authenticated (useAuthGuard will handle this, but adding as safety)
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <div className="container py-8">
+      {/* Header with User Navigation */}
+      <div className="flex items-start justify-between mb-4">
+        <div></div>
+        <UserNavigation userType="learner" profileUrl="/apps/learner/profile" />
+      </div>
+
       <div className="max-w-2xl mx-auto">
         <header className="mb-8">
           <div className="flex items-start justify-between mb-2">

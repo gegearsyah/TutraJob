@@ -18,8 +18,15 @@ import type { ProfileFormData } from '@/lib/validations/profile';
 import { supabase } from '@/lib/supabase/client';
 import { useIsMounted } from '@/lib/hooks/useIsMounted';
 import { announce } from '@/lib/audio';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 
 export default function ProfilePage() {
+  // Authentication guard - redirect to login if not authenticated
+  const { isAuthenticated, loading: authLoading } = useAuthGuard({
+    requireAuth: true,
+    redirectTo: '/apps/learner/auth/login',
+  });
+
   // Announce page on load and stop previous announcements
   usePageAnnouncement('Profil Saya', 'Kelola profil dan informasi pribadi Anda');
 
@@ -47,7 +54,21 @@ export default function ProfilePage() {
 
     getUser();
   }, [isMounted]);
+  // Show loading while checking auth or loading user
+  if (authLoading || loading) {
+    return (
+      <div className="container py-8">
+        <div className="text-center">
+          <p className="text-muted-foreground">Memverifikasi akses...</p>
+        </div>
+      </div>
+    );
+  }
 
+  // Redirect if not authenticated (useAuthGuard will handle this, but adding as safety)
+  if (!isAuthenticated) {
+    return null;
+  }
   const handleSubmit = async (data: ProfileFormData) => {
     if (!userId) {
       if (isMounted) {

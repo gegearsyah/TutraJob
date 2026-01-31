@@ -59,39 +59,46 @@ export default function AdminCreatorPage() {
   useEffect(() => {
     if (!isMounted || authLoading) return;
 
-    if (!isAuthenticated) {
-      setLoading(false);
-      router.push('/apps/admin/auth/login');
-      return;
-    }
-
     const checkAdmin = async () => {
       try {
         const role = await getUserRole();
+        console.log('Creator page - User role:', role);
+        
         if (role !== 'admin') {
+          console.warn('Creator page - User is not admin, role is:', role);
           announce('Akses ditolak. Hanya administrator yang dapat mengakses halaman ini.');
           router.push('/apps/admin/auth/login');
           return;
         }
+        
         setUserRole(role);
         await loadCreators();
       } catch (error) {
-        console.error('Error checking admin role:', error);
+        console.error('Creator page - Error checking admin role:', error);
+        announce('Terjadi kesalahan saat memeriksa izin akses');
         router.push('/apps/admin/auth/login');
       } finally {
         setLoading(false);
       }
     };
 
-    checkAdmin();
+    if (isAuthenticated) {
+      checkAdmin();
+    } else {
+      setLoading(false);
+    }
   }, [isMounted, isAuthenticated, authLoading, router]);
 
   const loadCreators = async () => {
     try {
+      console.log('Loading creators...');
       const data = await getCreators();
+      console.log('Creators loaded successfully:', data);
       setCreators(data || []);
     } catch (error: any) {
-      console.error('Error loading creators:', error);
+      console.error('Error loading creators - Full error:', error);
+      console.error('Error message:', error?.message);
+      console.error('Error details:', JSON.stringify(error));
       announce('Gagal memuat data pembuat. Silakan coba lagi.');
     }
   };
@@ -253,7 +260,6 @@ export default function AdminCreatorPage() {
           </p>
         </div>
 
-                      (e.target as HTMLImageElement).src = '/placeholder-avatar.svg';
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Form */}
           <div className="lg:col-span-1">
